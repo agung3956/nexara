@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Demo Dashboard Kasir UMKM - Nexara</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Inter, Arial, sans-serif; background: #f5f6f8; color: #111827; }
+    header { display: flex; justify-content: space-between; align-items: center; padding: 18px 28px; background: #111827; color: #fff; }
+    header strong { color: #fb923c; letter-spacing: .12em; font-size: 12px; }
+    main { display: grid; grid-template-columns: 1fr 360px; gap: 18px; padding: 24px; }
+    .card { border: 1px solid #e5e7eb; border-radius: 14px; background: #fff; padding: 18px; box-shadow: 0 18px 45px rgba(15,23,42,.07); }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+    .metric span { color: #6b7280; font-size: 13px; }
+    .metric b { display: block; margin-top: 8px; font-size: 24px; }
+    .products { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    button { border: 0; border-radius: 12px; background: #111827; color: #fff; padding: 11px 13px; font-weight: 700; cursor: pointer; }
+    .product { text-align: left; border: 1px solid #e5e7eb; background: #fff; color: #111827; }
+    .product small { display: block; color: #6b7280; margin-top: 6px; }
+    .cart-item { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px solid #eee; padding: 12px 0; }
+    .total { display: flex; justify-content: space-between; margin-top: 18px; padding-top: 18px; border-top: 2px solid #111827; font-size: 22px; font-weight: 800; }
+    .checkout { width: 100%; margin-top: 16px; background: #f97316; }
+    @media (max-width: 900px) { main, .metrics { grid-template-columns: 1fr; } .products { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div><strong>NEXARA POS</strong><h1>Dashboard Kasir UMKM</h1></div>
+    <p>Live demo transaksi, stok, dan omzet</p>
+  </header>
+  <main>
+    <section>
+      <div class="metrics">
+        <div class="card metric"><span>Omzet hari ini</span><b id="omzet">Rp0</b></div>
+        <div class="card metric"><span>Transaksi</span><b id="trx">0</b></div>
+        <div class="card metric"><span>Produk aktif</span><b>6</b></div>
+        <div class="card metric"><span>Stok kritis</span><b id="low">0</b></div>
+      </div>
+      <div class="card">
+        <h2>Pilih Produk</h2>
+        <div class="products" id="products"></div>
+      </div>
+    </section>
+    <aside class="card">
+      <h2>Keranjang</h2>
+      <div id="cart"></div>
+      <div class="total"><span>Total</span><span id="total">Rp0</span></div>
+      <button class="checkout" onclick="checkout()">Simpan Transaksi</button>
+    </aside>
+  </main>
+  <script>
+    const format = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n);
+    const products = [
+      ['Kue Lapis Bangka', 35000, 18], ['Kopi Susu Botol', 18000, 36], ['Keripik Singkong', 12000, 9],
+      ['Paket Nasi Ayam', 28000, 24], ['Brownies Mini', 16000, 6], ['Es Teh Lemon', 10000, 41]
+    ];
+    let cart = [], trx = 0, omzet = 0;
+    function render() {
+      document.getElementById('products').innerHTML = products.map((p, i) => `<button class="product" onclick="add(${i})"><b>${p[0]}</b><small>${format(p[1])} • Stok ${p[2]}</small></button>`).join('');
+      document.getElementById('cart').innerHTML = cart.length ? cart.map((item) => `<div class="cart-item"><span>${item.name} x${item.qty}</span><b>${format(item.price * item.qty)}</b></div>`).join('') : '<p>Belum ada produk dipilih.</p>';
+      const total = cart.reduce((s, item) => s + item.price * item.qty, 0);
+      document.getElementById('total').textContent = format(total);
+      document.getElementById('trx').textContent = trx;
+      document.getElementById('omzet').textContent = format(omzet);
+      document.getElementById('low').textContent = products.filter(p => p[2] <= 10).length;
+    }
+    function add(i) {
+      if (products[i][2] <= 0) return;
+      const found = cart.find(item => item.index === i);
+      found ? found.qty++ : cart.push({ index: i, name: products[i][0], price: products[i][1], qty: 1 });
+      products[i][2]--;
+      render();
+    }
+    function checkout() {
+      const total = cart.reduce((s, item) => s + item.price * item.qty, 0);
+      if (!total) return;
+      trx++;
+      omzet += total;
+      cart = [];
+      render();
+    }
+    render();
+  </script>
+</body>
+</html>

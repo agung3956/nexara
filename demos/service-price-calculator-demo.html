@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Demo Kalkulator Harga Jasa - Nexara</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Inter, Arial, sans-serif; background: #07111f; color: #fff; }
+    main { max-width: 1120px; margin: auto; padding: 30px; }
+    .hero { display: flex; justify-content: space-between; gap: 24px; align-items: end; margin-bottom: 22px; }
+    .eyebrow { color: #fb923c; font-size: 12px; font-weight: 900; letter-spacing: .16em; }
+    .grid { display: grid; grid-template-columns: 1fr 380px; gap: 18px; }
+    .card { border: 1px solid rgba(255,255,255,.12); border-radius: 18px; background: rgba(255,255,255,.07); padding: 20px; box-shadow: 0 18px 60px rgba(0,0,0,.25); }
+    .options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 14px 0 24px; }
+    button { border: 1px solid rgba(255,255,255,.14); border-radius: 14px; background: rgba(255,255,255,.08); color: #fff; padding: 14px; text-align: left; cursor: pointer; }
+    button.active { border-color: #fb923c; background: rgba(249,115,22,.22); }
+    .summary { position: sticky; top: 20px; }
+    .price { color: #fb923c; font-size: 38px; font-weight: 900; }
+    .row { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,.1); padding: 12px 0; color: #cbd5e1; }
+    @media (max-width: 860px) { .grid, .hero { grid-template-columns: 1fr; display: grid; } .options { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div><p class="eyebrow">NEXARA CALCULATOR</p><h1>Kalkulator Harga Jasa</h1><p>Pilih layanan, kompleksitas, deadline, dan revisi untuk melihat estimasi otomatis.</p></div>
+      <button onclick="resetDemo()">Reset Demo</button>
+    </section>
+    <section class="grid">
+      <div class="card">
+        <h2>Jenis Layanan</h2><div class="options" id="services"></div>
+        <h2>Kompleksitas</h2><div class="options" id="levels"></div>
+        <h2>Deadline</h2><div class="options" id="deadlines"></div>
+        <h2>Jumlah Revisi</h2><div class="options" id="revisions"></div>
+      </div>
+      <aside class="card summary">
+        <p class="eyebrow">ESTIMASI PENAWARAN</p>
+        <div class="price" id="total"></div>
+        <div id="breakdown"></div>
+        <button class="active" style="width:100%; text-align:center; margin-top:18px;">Buat Penawaran</button>
+      </aside>
+    </section>
+  </main>
+  <script>
+    const rupiah = n => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n);
+    const services = [['Desain Visual', 350000], ['Website', 1800000], ['Konten Digital', 500000], ['Otomasi Bisnis', 2500000]];
+    const levels = [['Basic', 1], ['Standard', 1.45], ['Premium', 2.15], ['Enterprise', 3.2]];
+    const deadlines = [['7-14 hari', 1], ['4-6 hari', 1.15], ['2-3 hari', 1.35], ['24 jam', 1.75]];
+    const revisions = [['1x revisi', 0], ['2x revisi', 125000], ['3x revisi', 250000], ['5x revisi', 500000]];
+    let state = { service: 1, level: 1, deadline: 1, revision: 1 };
+    function group(id, data, key) {
+      document.getElementById(id).innerHTML = data.map((item, i) => `<button class="${state[key] === i ? 'active' : ''}" onclick="state.${key}=${i};render()"><b>${item[0]}</b><br><small>${typeof item[1] === 'number' && item[1] > 10000 ? rupiah(item[1]) : 'Multiplier ' + item[1]}</small></button>`).join('');
+    }
+    function render() {
+      group('services', services, 'service'); group('levels', levels, 'level'); group('deadlines', deadlines, 'deadline'); group('revisions', revisions, 'revision');
+      const base = services[state.service][1], level = levels[state.level][1], deadline = deadlines[state.deadline][1], revision = revisions[state.revision][1];
+      const subtotal = Math.round(base * level * deadline + revision), fee = Math.round(subtotal * .03), total = subtotal + fee;
+      document.getElementById('total').textContent = rupiah(total);
+      document.getElementById('breakdown').innerHTML = `<div class="row"><span>Harga dasar</span><b>${rupiah(base)}</b></div><div class="row"><span>Kompleksitas</span><b>${levels[state.level][0]}</b></div><div class="row"><span>Deadline</span><b>${deadlines[state.deadline][0]}</b></div><div class="row"><span>Revisi</span><b>${rupiah(revision)}</b></div><div class="row"><span>Handling</span><b>${rupiah(fee)}</b></div>`;
+    }
+    function resetDemo() { state = { service: 1, level: 1, deadline: 1, revision: 1 }; render(); }
+    render();
+  </script>
+</body>
+</html>

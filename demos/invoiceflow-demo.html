@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Demo InvoiceFlow - Nexara</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Inter, Arial, sans-serif; background: #f8fafc; color: #0f172a; }
+    main { display: grid; grid-template-columns: 380px 1fr; min-height: 100vh; }
+    form { background: #0f172a; color: #fff; padding: 28px; }
+    label { display: block; margin-top: 14px; font-size: 13px; color: #cbd5e1; }
+    input { width: 100%; margin-top: 6px; border: 1px solid #334155; border-radius: 10px; background: #111827; color: #fff; padding: 11px; }
+    button { width: 100%; margin-top: 18px; border: 0; border-radius: 12px; background: #f97316; color: #fff; padding: 13px; font-weight: 800; cursor: pointer; }
+    .preview { padding: 34px; }
+    .invoice { max-width: 850px; margin: auto; border-radius: 18px; background: #fff; padding: 36px; box-shadow: 0 22px 70px rgba(15,23,42,.12); }
+    .top, .row, .total { display: flex; justify-content: space-between; gap: 20px; }
+    .brand { color: #f97316; letter-spacing: .16em; font-size: 12px; font-weight: 800; }
+    table { width: 100%; border-collapse: collapse; margin-top: 26px; }
+    th, td { border-bottom: 1px solid #e2e8f0; padding: 13px; text-align: left; }
+    th:last-child, td:last-child { text-align: right; }
+    .total { margin-top: 26px; font-size: 26px; font-weight: 900; }
+    @media (max-width: 860px) { main { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <form oninput="render()">
+      <p class="brand">NEXARA INVOICEFLOW</p>
+      <h1>Invoice & Kwitansi Otomatis</h1>
+      <label>Nama Klien<input id="client" value="PT Maju Bersama"></label>
+      <label>Layanan 1<input id="item1" value="Desain Logo Premium"></label>
+      <label>Harga 1<input id="price1" type="number" value="850000"></label>
+      <label>Layanan 2<input id="item2" value="Landing Page Bisnis"></label>
+      <label>Harga 2<input id="price2" type="number" value="1800000"></label>
+      <label>Diskon<input id="discount" type="number" value="150000"></label>
+      <button type="button" onclick="window.print()">Cetak Invoice</button>
+    </form>
+    <section class="preview">
+      <div class="invoice">
+        <div class="top">
+          <div><p class="brand">NEXARA CREATIVE</p><h2>Invoice</h2><p>Jasa desain, website, dan sistem digital.</p></div>
+          <div><b>INV-2026-0517</b><p>17 Mei 2026</p></div>
+        </div>
+        <p>Ditagihkan kepada:</p>
+        <h3 id="clientOut"></h3>
+        <table>
+          <thead><tr><th>Layanan</th><th>Harga</th></tr></thead>
+          <tbody id="items"></tbody>
+        </table>
+        <div class="row"><span>Diskon</span><b id="discountOut"></b></div>
+        <div class="total"><span>Total</span><span id="totalOut"></span></div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const rupiah = n => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n);
+    function render() {
+      const client = document.getElementById('client').value;
+      const p1 = Number(document.getElementById('price1').value || 0);
+      const p2 = Number(document.getElementById('price2').value || 0);
+      const discount = Number(document.getElementById('discount').value || 0);
+      document.getElementById('clientOut').textContent = client;
+      document.getElementById('items').innerHTML = `<tr><td>${document.getElementById('item1').value}</td><td>${rupiah(p1)}</td></tr><tr><td>${document.getElementById('item2').value}</td><td>${rupiah(p2)}</td></tr>`;
+      document.getElementById('discountOut').textContent = rupiah(discount);
+      document.getElementById('totalOut').textContent = rupiah(Math.max(0, p1 + p2 - discount));
+    }
+    render();
+  </script>
+</body>
+</html>

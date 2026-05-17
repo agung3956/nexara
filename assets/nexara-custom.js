@@ -26,16 +26,16 @@
   ];
 
   const samples = [
-    ["Dashboard Kasir UMKM", "Mencatat penjualan harian, stok barang, omzet, produk terlaris, dan riwayat transaksi untuk warung, toko kue, reseller, katering, dan usaha rumahan.", ["Transaksi", "Stok otomatis", "Source JSX"], "./demos/nexara_pos_umkm_app.jsx", "Download Source"],
+    ["Dashboard Kasir UMKM", "Mencatat penjualan harian, stok barang, omzet, produk terlaris, dan riwayat transaksi untuk warung, toko kue, reseller, katering, dan usaha rumahan.", ["Transaksi", "Stok otomatis", "Cetak nota"], "./demos/pos-umkm-demo.html", "Buka Demo"],
     ["Sistem Booking Jasa", "Pelanggan memilih layanan, tanggal, jam, nama, dan nomor WhatsApp. Data booking masuk ke admin untuk barbershop, salon, fotografer, bengkel, laundry, klinik kecil, dan jasa desain.", ["Form booking", "Kalender", "WhatsApp"], "./demos/nexara_booking_app.html", "Buka Demo"],
     ["Dashboard Admin Order Digital", "Mengelola pesanan jasa dari pelanggan mulai dari masuk, diproses, revisi, sampai selesai. Cocok untuk alur kerja Nexara Creative sendiri.", ["Status order", "Deadline", "Biaya"], "./demos/nexara-orderflow.html", "Buka Demo"],
-    ["Aplikasi Invoice dan Kwitansi Otomatis", "Membuat invoice, kwitansi, penawaran harga, dan tanda terima secara cepat untuk freelancer, UMKM, EO, jasa digital, dan toko kecil.", ["Item kerja", "Diskon/pajak", "Source ZIP"], "./demos/nexara-invoiceflow.zip", "Download Source"],
+    ["Aplikasi Invoice dan Kwitansi Otomatis", "Membuat invoice, kwitansi, penawaran harga, dan tanda terima secara cepat untuk freelancer, UMKM, EO, jasa digital, dan toko kecil.", ["Item kerja", "Diskon/pajak", "Preview invoice"], "./demos/invoiceflow-demo.html", "Buka Demo"],
     ["AI Content Planner", "Membantu bisnis membuat ide konten Instagram, TikTok, caption, kalender posting, dan headline promosi dengan pemanfaatan AI tools.", ["Ide konten", "Caption", "Kalender"], "./demos/ai-content-planner/index.html", "Buka Demo"],
     ["Company Profile Generator", "Membuat draft profil usaha otomatis dari form sederhana berisi nama usaha, bidang, keunggulan, layanan, alamat, dan kontak.", ["Form usaha", "Draft profil", "Siap pakai"], "./demos/company-profile-generator/index.html", "Buka Demo"],
     ["Landing Page Builder Mini", "Pengguna mengisi nama usaha, warna brand, layanan, testimoni, dan kontak. Sistem langsung membuat preview landing page sederhana.", ["Warna brand", "Preview", "Kontak"], "./demos/nexara-pageforge.html", "Buka Demo"],
     ["Sistem Buku Tamu Digital", "Tamu mengisi nama, instansi, keperluan, nomor HP, foto, dan tanda tangan. Data masuk ke dashboard kantor, sekolah, event, klinik, atau komunitas.", ["Form tamu", "QR", "Rekap"], "./demos/attendflow-qr/attendflow_qr_demo.html", "Buka Demo"],
     ["Dashboard Monitoring Tugas", "Mengelola daftar tugas, status pekerjaan, PIC, deadline, prioritas, dan progres untuk tim kecil, kantor, EO, komunitas, keluarga, atau sekolah.", ["Kanban", "Checklist", "Prioritas"], "./demos/taskos-dashboard/index.html", "Buka Demo"],
-    ["Kalkulator Harga Jasa", "Calon pelanggan memilih paket desain, website, konten, atau otomasi. Sistem menghitung estimasi harga dan deadline.", ["Pilih layanan", "Revisi", "Source JSX"], "./demos/nexara_service_price_calculator.jsx", "Download Source"]
+    ["Kalkulator Harga Jasa", "Calon pelanggan memilih paket desain, website, konten, atau otomasi. Sistem menghitung estimasi harga dan deadline.", ["Pilih layanan", "Revisi", "Estimasi harga"], "./demos/service-price-calculator-demo.html", "Buka Demo"]
   ];
 
   function replaceLogos() {
@@ -75,9 +75,8 @@
     section.innerHTML = `
       <div class="nexara-portfolio-gallery__inner">
         <div class="nexara-section-head">
-          <span class="nexara-section-eyebrow">PORTOFOLIO HASIL KARYA KAMI</span>
-          <h2>Karya asli dari folder portofolio Nexara</h2>
-          <p>Logo, feed Instagram, media promosi, dan produk branding kini ditampilkan langsung dari aset resmi yang disiapkan.</p>
+          <span class="nexara-section-eyebrow">PORTOFOLIO</span>
+          <h2>Hasil Karya Kami</h2>
         </div>
         <div class="nexara-portfolio-gallery__grid">
           ${portfolioItems.map((item) => `
@@ -111,7 +110,7 @@
             <span class="nexara-section-eyebrow">SAMPLE APLIKASI</span>
             <h2>Demo aplikasi yang bisa ditampilkan Nexara</h2>
           </div>
-          <p>Contoh aplikasi ini bisa dibuka sebagai demo langsung atau diunduh sebagai source untuk kebutuhan presentasi, pengembangan, dan penawaran layanan digital.</p>
+          <p>Semua contoh aplikasi tersedia sebagai live demo agar calon pelanggan bisa langsung melihat alur, tampilan, dan manfaatnya.</p>
         </div>
         <div class="nexara-samples__grid">
           ${samples.map((item, index) => `
