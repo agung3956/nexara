@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nexara TaskOS - Dashboard Monitoring Tugas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --bg: #070A12;
+      --card: rgba(255,255,255,0.06);
+      --border: rgba(255,255,255,0.10);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 22% 4%, rgba(34, 211, 238, 0.22), transparent 28%),
+        radial-gradient(circle at 75% 12%, rgba(139, 92, 246, 0.22), transparent 30%),
+        radial-gradient(circle at 55% 100%, rgba(16, 185, 129, 0.12), transparent 28%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .glass {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 24px 80px rgba(0,0,0,0.28);
+    }
+
+    .glass-soft {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.10);
+      backdrop-filter: blur(16px);
+    }
+
+    .task-card {
+      background: rgba(2, 6, 23, 0.72);
+      border: 1px solid rgba(255,255,255,0.10);
+      transition: transform .22s ease, border .22s ease, background .22s ease;
+    }
+
+    .task-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255,255,255,0.22);
+      background: rgba(15, 23, 42, 0.88);
+    }
+
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .fade-in {
+      animation: fadeIn .35s ease both;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(.99);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .modal-backdrop {
+      background: rgba(2, 6, 23, 0.72);
+      backdrop-filter: blur(12px);
+    }
+
+    .scrollbar::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    .scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.18);
+      border-radius: 999px;
+    }
+
+    @media (max-width: 1024px) {
+      .sidebar {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    const STORAGE_KEY = "nexara_taskos_tasks_v1";
+
+    const defaultTasks = [
+      {
+        id: 1,
+        title: "Finalisasi surat tugas kegiatan CVC",
+        desc: "Validasi konsep, lampiran, dan disposisi sebelum naik tanda tangan.",
+        status: "todo",
+        priority: "high",
+        health: "red",
+        pic: "Agung",
+        deadline: "Hari ini",
+        progress: 25,
+        category: "Administrasi",
+        checklist: [
+          { text: "Draft", done: true },
+          { text: "Lampiran", done: false },
+          { text: "Review", done: false },
+          { text: "Tanda tangan", done: false }
+        ]
+      },
+      {
+        id: 2,
+        title: "Publikasi konten edukasi kepabeanan",
+        desc: "Siapkan caption, visual, dan jadwal unggah untuk kanal media sosial.",
+        status: "progress",
+        priority: "medium",
+        health: "yellow",
+        pic: "Humas",
+        deadline: "Besok",
+        progress: 58,
+        category: "Publikasi",
+        checklist: [
+          { text: "Ide", done: true },
+          { text: "Desain", done: true },
+          { text: "Caption", done: true },
+          { text: "Approval", done: false },
+          { text: "Upload", done: false }
+        ]
+      },
+      {
+        id: 3,
+        title: "Monitoring tindak lanjut UMKM binaan",
+        desc: "Perbarui status asistensi, hambatan, dan kebutuhan dukungan lanjutan.",
+        status: "progress",
+        priority: "high",
+        health: "green",
+        pic: "Tim UMKM",
+        deadline: "3 hari lagi",
+        progress: 72,
+        category: "UMKM",
+        checklist: [
+          { text: "Data", done: true },
+          { text: "Validasi", done: true },
+          { text: "Analisis", done: true },
+          { text: "Rencana aksi", done: false }
+        ]
+      },
+      {
+        id: 4,
+        title: "Rekap evaluasi layanan informasi",
+        desc: "Kumpulkan data kepuasan pengguna jasa dan catatan perbaikan layanan.",
+        status: "review",
+        priority: "low",
+        health: "green",
+        pic: "Layanan",
+        deadline: "Minggu ini",
+        progress: 86,
+        category: "Layanan",
+        checklist: [
+          { text: "Data SPLIT", done: true },
+          { text: "Rekap", done: true },
+          { text: "Analisis", done: true },
+          { text: "Final", done: false }
+        ]
+      },
+      {
+        id: 5,
+        title: "Penyusunan rundown kegiatan sosialisasi",
+        desc: "Susun alur acara, narasumber, materi, dan PIC teknis lapangan.",
+        status: "todo",
+        priority: "medium",
+        health: "yellow",
+        pic: "EO Internal",
+        deadline: "5 hari lagi",
+        progress: 10,
+        category: "Event",
+        checklist: [
+          { text: "Konsep", done: false },
+          { text: "Rundown", done: false },
+          { text: "Materi", done: false },
+          { text: "Teknis", done: false }
+        ]
+      },
+      {
+        id: 6,
+        title: "Laporan hasil kunjungan lapangan",
+        desc: "Gabungkan catatan lapangan, foto, hasil diskusi, simpulan, dan saran.",
+        status: "done",
+        priority: "medium",
+        health: "green",
+        pic: "Sekretariat",
+        deadline: "Selesai",
+        progress: 100,
+        category: "Laporan",
+        checklist: [
+          { text: "Catatan", done: true },
+          { text: "Dokumentasi", done: true },
+          { text: "Laporan", done: true },
+          { text: "Arsip", done: true }
+        ]
+      }
+    ];
+
+    const columns = [
+      { id: "todo", title: "To Do", subtitle: "Belum dimulai", icon: "target" },
+      { id: "progress", title: "In Progress", subtitle: "Sedang dikerjakan", icon: "activity" },
+      { id: "review", title: "Review", subtitle: "Menunggu validasi", icon: "shield-check" },
+      { id: "done", title: "Done", subtitle: "Selesai", icon: "check-circle-2" }
+    ];
+
+    let tasks = loadTasks();
+    let query = "";
+    let filter = "all";
+    let currentModalTaskId = null;
+
+    function loadTasks() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return defaultTasks;
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return defaultTasks;
+      }
+    }
+
+    function saveTasks() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    }
+
+    function badgePriority(priority) {
+      if (priority === "high") return "bg-rose-500/10 text-rose-300 ring-rose-400/20";
+      if (priority === "medium") return "bg-amber-500/10 text-amber-300 ring-amber-400/20";
+      return "bg-emerald-500/10 text-emerald-300 ring-emerald-400/20";
+    }
+
+    function dotHealth(health) {
+      if (health === "red") return "bg-rose-500 shadow-rose-500/40";
+      if (health === "yellow") return "bg-amber-400 shadow-amber-400/40";
+      return "bg-emerald-400 shadow-emerald-400/40";
+    }
+
+    function labelPriority(priority) {
+      if (priority === "high") return "Urgent";
+      if (priority === "medium") return "Normal";
+      return "Low";
+    }
+
+    function statusLabel(status) {
+      if (status === "todo") return "To Do";
+      if (status === "progress") return "In Progress";
+      if (status === "review") return "Review";
+      return "Done";
+    }
+
+    function filteredTasks() {
+      return tasks.filter(task => {
+        const text = `${task.title} ${task.desc} ${task.pic} ${task.category}`.toLowerCase();
+        const matchQuery = text.includes(query.toLowerCase());
+        const matchFilter = filter === "all" || task.health === filter || task.priority === filter || task.status === filter;
+        return matchQuery && matchFilter;
+      });
+    }
+
+    function stats() {
+      const total = tasks.length || 1;
+      const done = tasks.filter(t => t.status === "done").length;
+      const red = tasks.filter(t => t.health === "red").length;
+      const avg = Math.round(tasks.reduce((sum, t) => sum + Number(t.progress || 0), 0) / total);
+      return { total: tasks.length, done, red, avg };
+    }
+
+    function checklistDone(task) {
+      return task.checklist.filter(item => item.done).length;
+    }
+
+    function renderIcon(name, size = 18) {
+      return `<i data-lucide="${name}" style="width:${size}px;height:${size}px"></i>`;
+    }
+
+    function renderStat(icon, label, value, helper) {
+      return `
+        <div class="glass rounded-[1.5rem] p-5">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <p class="text-sm text-slate-400">${label}</p>
+              <p class="mt-2 text-3xl font-semibold tracking-tight text-white">${value}</p>
+              <p class="mt-1 text-xs text-slate-500">${helper}</p>
+            </div>
+            <div class="rounded-2xl border border-white/10 bg-white/10 p-3 text-slate-200">${renderIcon(icon, 20)}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderTaskCard(task) {
+      const done = checklistDone(task);
+      return `
+        <div class="task-card fade-in rounded-[1.5rem] p-4 cursor-pointer" onclick="openTask(${task.id})">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-center gap-2">
+              <span class="h-2.5 w-2.5 rounded-full shadow-lg ${dotHealth(task.health)}"></span>
+              <span class="rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 ${badgePriority(task.priority)}">${labelPriority(task.priority)}</span>
+            </div>
+            <button class="rounded-full p-1.5 text-slate-500 hover:bg-white/10 hover:text-white" onclick="event.stopPropagation(); openTask(${task.id})">
+              ${renderIcon("more-horizontal", 17)}
+            </button>
+          </div>
+
+          <h3 class="mt-4 text-[15px] font-semibold leading-snug text-white">${escapeHtml(task.title)}</h3>
+          <p class="mt-2 line-clamp-2 text-sm leading-6 text-slate-400">${escapeHtml(task.desc)}</p>
+
+          <div class="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+            <div class="flex items-center justify-between text-xs text-slate-400">
+              <span>Progress</span>
+              <span class="font-medium text-slate-200">${task.progress}%</span>
+            </div>
+            <div class="mt-2 h-2 rounded-full bg-white/10">
+              <div class="h-2 rounded-full bg-white/80" style="width:${task.progress}%"></div>
+            </div>
+          </div>
+
+          <div class="mt-4 flex items-center justify-between gap-3">
+            <div class="flex -space-x-2">
+              ${task.pic.split(" ").slice(0,2).map(part => part[0] || "").join("").toUpperCase()
+                ? `<div class="grid h-8 w-8 place-items-center rounded-full border border-slate-950 bg-slate-800 text-[11px] font-semibold text-slate-200">${task.pic.split(" ").slice(0,2).map(part => part[0] || "").join("").toUpperCase()}</div>`
+                : ""}
+            </div>
+            <div class="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-slate-300">
+              ${renderIcon("calendar", 13)}
+              ${escapeHtml(task.deadline)}
+            </div>
+          </div>
+
+          <div class="mt-4 flex items-center justify-between border-t border-white/10 pt-3 text-xs text-slate-400">
+            <span>${escapeHtml(task.category)}</span>
+            <span>${done}/${task.checklist.length} checklist</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderApp() {
+      const s = stats();
+      const filtered = filteredTasks();
+
+      document.getElementById("app").innerHTML = `
+        <div class="relative flex min-h-screen">
+          <aside class="sidebar min-h-screen w-72 shrink-0 border-r border-white/10 bg-slate-950/70 p-5 backdrop-blur-xl">
+            <div class="flex items-center gap-3">
+              <div class="grid h-11 w-11 place-items-center rounded-2xl bg-white text-slate-950 shadow-lg shadow-white/10">
+                ${renderIcon("sparkles", 20)}
+              </div>
+              <div>
+                <p class="font-semibold text-white">Nexara TaskOS</p>
+                <p class="text-xs text-slate-500">Enterprise demo dashboard</p>
+              </div>
+            </div>
+
+            <div class="mt-8 space-y-1">
+              ${[
+                ["layout-dashboard", "Dashboard"],
+                ["list-checks", "Tugas"],
+                ["calendar", "Kalender"],
+                ["users", "Tim"],
+                ["bar-chart-3", "Laporan"]
+              ].map((item, index) => `
+                <button class="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm transition ${index === 0 ? "bg-white text-slate-950" : "text-slate-400 hover:bg-white/10 hover:text-white"}">
+                  ${renderIcon(item[0], 18)}
+                  ${item[1]}
+                </button>
+              `).join("")}
+            </div>
+
+            <div class="mt-8 rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.08] to-white/[0.03] p-5">
+              <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-cyan-400/15 text-cyan-200">
+                ${renderIcon("zap", 18)}
+              </div>
+              <p class="mt-4 text-sm font-semibold text-white">AI Workload Insight</p>
+              <p class="mt-2 text-sm leading-6 text-slate-400">Tugas merah harus diprioritaskan. Gunakan filter untuk melihat pekerjaan yang berisiko.</p>
+              <button onclick="setFilter('red')" class="mt-4 w-full rounded-2xl bg-white px-4 py-2.5 text-sm font-medium text-slate-950 hover:bg-slate-200">Lihat Risiko</button>
+            </div>
+          </aside>
+
+          <main class="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">
+            <header class="glass rounded-[2rem] p-5 sm:p-6">
+              <div class="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+                <div>
+                  <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs text-slate-300">
+                    <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+                    Live task monitoring workspace
+                  </div>
+                  <h1 class="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-5xl">Dashboard Monitoring Tugas</h1>
+                  <p class="mt-3 max-w-3xl text-sm leading-6 text-slate-400 sm:text-base">
+                    Kelola pekerjaan, PIC, deadline, prioritas, checklist, dan progres dalam satu dashboard yang rapi, cepat, dan siap dipakai.
+                  </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                  <button onclick="resetData()" class="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-white hover:bg-white/10">
+                    Reset Demo
+                  </button>
+                  <button onclick="openNewTask()" class="rounded-2xl bg-white px-4 py-2.5 text-sm font-medium text-slate-950 hover:bg-slate-200">
+                    + Tambah Tugas
+                  </button>
+                </div>
+              </div>
+            </header>
+
+            <section class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              ${renderStat("list-checks", "Total Tugas", s.total, "Seluruh workspace aktif")}
+              ${renderStat("check-circle-2", "Selesai", s.done, "Tugas sudah tuntas")}
+              ${renderStat("alert-triangle", "Risiko Merah", s.red, "Butuh perhatian segera")}
+              ${renderStat("flame", "Rata-rata Progres", s.avg + "%", "Dari semua pekerjaan")}
+            </section>
+
+            <section class="mt-6 grid gap-6 xl:grid-cols-[1fr_360px]">
+              <div class="min-w-0">
+                <div class="mb-4 flex flex-col gap-3 rounded-3xl border border-white/10 bg-white/[0.04] p-3 backdrop-blur-xl md:flex-row md:items-center md:justify-between">
+                  <div class="flex min-w-0 flex-1 items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3">
+                    ${renderIcon("search", 18)}
+                    <input value="${escapeHtml(query)}" oninput="setQuery(this.value)" placeholder="Cari tugas, PIC, kategori..." class="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500"/>
+                  </div>
+                  <div class="scrollbar flex gap-2 overflow-x-auto">
+                    ${[
+                      ["all", "Semua"],
+                      ["red", "Merah"],
+                      ["yellow", "Kuning"],
+                      ["green", "Hijau"],
+                      ["high", "Urgent"],
+                      ["todo", "To Do"],
+                      ["progress", "Progress"]
+                    ].map(item => `
+                      <button onclick="setFilter('${item[0]}')" class="whitespace-nowrap rounded-2xl px-4 py-3 text-sm transition ${filter === item[0] ? "bg-white text-slate-950" : "bg-white/[0.05] text-slate-400 hover:bg-white/10 hover:text-white"}">
+                        ${item[1]}
+                      </button>
+                    `).join("")}
+                  </div>
+                </div>
+
+                <div class="grid gap-4 xl:grid-cols-4">
+                  ${columns.map(column => {
+                    const columnTasks = filtered.filter(task => task.status === column.id);
+                    return `
+                      <div class="rounded-[1.75rem] border border-white/10 bg-white/[0.035] p-3 backdrop-blur-xl">
+                        <div class="mb-3 flex items-center justify-between px-1">
+                          <div class="flex items-center gap-3">
+                            <div class="grid h-9 w-9 place-items-center rounded-2xl bg-white/10 text-slate-200">
+                              ${renderIcon(column.icon, 17)}
+                            </div>
+                            <div>
+                              <p class="text-sm font-semibold text-white">${column.title}</p>
+                              <p class="text-xs text-slate-500">${column.subtitle}</p>
+                            </div>
+                          </div>
+                          <span class="rounded-full bg-white/10 px-2 py-1 text-xs text-slate-300">${columnTasks.length}</span>
+                        </div>
+                        <div class="space-y-3">
+                          ${columnTasks.map(renderTaskCard).join("") || `
+                            <div class="rounded-3xl border border-dashed border-white/10 p-6 text-center text-sm text-slate-500">
+                              Belum ada tugas di kolom ini.
+                            </div>
+                          `}
+                        </div>
+                      </div>
+                    `;
+                  }).join("")}
+                </div>
+              </div>
+
+              <aside class="space-y-4">
+                <div class="glass rounded-[1.5rem] p-5">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-sm font-semibold text-white">Executive Snapshot</p>
+                      <p class="mt-1 text-xs text-slate-500">Ringkasan untuk pimpinan</p>
+                    </div>
+                    <button class="rounded-full border border-white/10 p-2 text-slate-400 hover:bg-white/10 hover:text-white">
+                      ${renderIcon("chevron-down", 16)}
+                    </button>
+                  </div>
+                  <div class="mt-5 space-y-4">
+                    ${[
+                      ["Tugas prioritas tinggi", tasks.filter(t => t.priority === "high").length + " aktif", "Perlu monitoring harian"],
+                      ["Deadline dekat", tasks.filter(t => t.deadline === "Hari ini" || t.deadline === "Besok").length + " tugas", "Hari ini dan besok"],
+                      ["Tugas selesai", s.done + " selesai", "Dihitung dari seluruh board"]
+                    ].map(item => `
+                      <div class="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
+                        <div class="flex items-center justify-between gap-3">
+                          <p class="text-sm text-slate-300">${item[0]}</p>
+                          <p class="text-sm font-semibold text-white">${item[1]}</p>
+                        </div>
+                        <p class="mt-1 text-xs text-slate-500">${item[2]}</p>
+                      </div>
+                    `).join("")}
+                  </div>
+                </div>
+
+                <div class="glass rounded-[1.5rem] p-5">
+                  <div class="flex items-center gap-3">
+                    <div class="grid h-10 w-10 place-items-center rounded-2xl bg-white text-slate-950">
+                      ${renderIcon("clock", 18)}
+                    </div>
+                    <div>
+                      <p class="text-sm font-semibold text-white">Upcoming Deadline</p>
+                      <p class="text-xs text-slate-500">Tugas aktif terdekat</p>
+                    </div>
+                  </div>
+                  <div class="mt-5 space-y-3">
+                    ${tasks.filter(task => task.status !== "done").slice(0, 5).map(task => `
+                      <button onclick="openTask(${task.id})" class="flex w-full items-center justify-between gap-3 rounded-2xl p-3 text-left hover:bg-white/[0.05]">
+                        <div class="min-w-0">
+                          <p class="truncate text-sm font-medium text-white">${escapeHtml(task.title)}</p>
+                          <p class="text-xs text-slate-500">PIC: ${escapeHtml(task.pic)}</p>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs text-slate-300">
+                          ${escapeHtml(task.deadline)}
+                          ${renderIcon("arrow-right", 13)}
+                        </div>
+                      </button>
+                    `).join("")}
+                  </div>
+                </div>
+              </aside>
+            </section>
+          </main>
+        </div>
+
+        <div id="modal"></div>
+      `;
+
+      lucide.createIcons();
+    }
+
+    function openNewTask() {
+      currentModalTaskId = null;
+      renderModal({
+        id: null,
+        title: "",
+        desc: "",
+        status: "todo",
+        priority: "medium",
+        health: "yellow",
+        pic: "",
+        deadline: "",
+        progress: 0,
+        category: "",
+        checklist: []
+      });
+    }
+
+    function openTask(id) {
+      const task = tasks.find(t => t.id === id);
+      currentModalTaskId = id;
+      renderModal(task);
+    }
+
+    function renderModal(task) {
+      const checklistText = (task.checklist || []).map(item => item.text).join("\\n");
+      document.getElementById("modal").innerHTML = `
+        <div class="fixed inset-0 z-50 grid place-items-center p-4 modal-backdrop">
+          <div class="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-[2rem] border border-white/10 bg-slate-950 p-5 shadow-2xl">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-sm text-slate-400">${task.id ? "Edit tugas" : "Tambah tugas baru"}</p>
+                <h2 class="mt-1 text-2xl font-semibold text-white">${task.id ? escapeHtml(task.title) : "Tugas Baru"}</h2>
+              </div>
+              <button onclick="closeModal()" class="rounded-full border border-white/10 p-2 text-slate-400 hover:bg-white/10 hover:text-white">${renderIcon("x", 18)}</button>
+            </div>
+
+            <div class="mt-6 grid gap-4">
+              <label class="grid gap-2">
+                <span class="text-sm text-slate-300">Judul tugas</span>
+                <input id="f-title" value="${escapeAttr(task.title)}" class="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white outline-none focus:border-white/30"/>
+              </label>
+
+              <label class="grid gap-2">
+                <span class="text-sm text-slate-300">Deskripsi</span>
+                <textarea id="f-desc" rows="3" class="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white outline-none focus:border-white/30">${escapeHtml(task.desc)}</textarea>
+              </label>
+
+              <div class="grid gap-4 sm:grid-cols-2">
+                <label class="grid gap-2">
+                  <span class="text-sm text-slate-300">Status</span>
+                  <select id="f-status" class="rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 text-white outline-none">
+                    ${["todo", "progress", "review", "done"].map(v => `<option value="${v}" ${task.status === v ? "selected" : ""}>${statusLabel(v)}</option>`).join("")}
+                  </select>
+                </label>
+
+                <label class="grid gap-2">
+                  <span class="text-sm text-slate-300">Prioritas</span>
+                  <select id="f-priority" class="rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 text-white outline-none">
+                    ${["high", "medium", "low"].map(v => `<option value="${v}" ${task.priority === v ? "selected" : ""}>${labelPriority(v)}</option>`).join("")}
+                  </select>
+                </label>
+
+                <label class="grid gap-2">
+                  <span class="text-sm text-slate-300">Indikator</span>
+                  <select id="f-health" class="rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 text-white outline-none">
+                    ${["red", "yellow", "green"].map(v => `<option value="${v}" ${task.health === v ? "selected" : ""}>${v === "red" ? "Merah" : v === "yellow" ? "Kuning" : "Hijau"}</option>`).join("")}
+                  </select>
+                </label>
+
+                <label class="grid gap-2">
+                  <span class="text-sm text-slate-300">Progress</span>
+                  <input id="f-progress" type="number" min="0" max="100" value="${Number(task.progress || 0)}" class="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white outline-none"/>
+                </label>
+
+                <label class="grid gap-2">
+                  <span class="text-sm text-slate-300">PIC</span>
+                  <input id="f-pic" value="${escapeAttr(task.pic)}" class="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white outline-none"/>
+                </label>
+
+                <label class="grid gap-2">
+                  <span class="text-sm text-slate-300">Deadline</span>
+                  <input id="f-deadline" value="${escapeAttr(task.deadline)}" class="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white outline-none"/>
+                </label>
+              </div>
+
+              <label class="grid gap-2">
+                <span class="text-sm text-slate-300">Kategori</span>
+                <input id="f-category" value="${escapeAttr(task.category)}" class="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white outline-none"/>
+              </label>
+
+              <label class="grid gap-2">
+                <span class="text-sm text-slate-300">Checklist, satu baris satu item</span>
+                <textarea id="f-checklist" rows="5" class="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white outline-none">${escapeHtml(checklistText)}</textarea>
+              </label>
+
+              ${task.id ? `
+                <div class="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                  <p class="mb-3 text-sm font-medium text-white">Checklist aktif</p>
+                  <div class="space-y-2">
+                    ${(task.checklist || []).map((item, index) => `
+                      <label class="flex items-center gap-3 rounded-xl px-2 py-2 text-sm text-slate-300 hover:bg-white/[0.04]">
+                        <input type="checkbox" ${item.done ? "checked" : ""} onchange="toggleChecklist(${task.id}, ${index})" class="h-4 w-4">
+                        <span class="${item.done ? "line-through text-slate-500" : ""}">${escapeHtml(item.text)}</span>
+                      </label>
+                    `).join("")}
+                  </div>
+                </div>
+              ` : ""}
+            </div>
+
+            <div class="mt-6 flex flex-wrap justify-between gap-3">
+              <div>
+                ${task.id ? `<button onclick="deleteTask(${task.id})" class="rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-2.5 text-sm font-medium text-rose-200 hover:bg-rose-500/20">Hapus</button>` : ""}
+              </div>
+              <div class="flex gap-3">
+                <button onclick="closeModal()" class="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-white hover:bg-white/10">Batal</button>
+                <button onclick="saveTaskFromModal()" class="rounded-2xl bg-white px-4 py-2.5 text-sm font-medium text-slate-950 hover:bg-slate-200">Simpan</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      lucide.createIcons();
+    }
+
+    function saveTaskFromModal() {
+      const existing = currentModalTaskId ? tasks.find(t => t.id === currentModalTaskId) : null;
+      const checklistLines = document.getElementById("f-checklist").value
+        .split("\\n")
+        .map(item => item.trim())
+        .filter(Boolean);
+
+      const oldChecklist = existing?.checklist || [];
+      const checklist = checklistLines.map(text => {
+        const old = oldChecklist.find(item => item.text === text);
+        return { text, done: old ? old.done : false };
+      });
+
+      const task = {
+        id: currentModalTaskId || Date.now(),
+        title: document.getElementById("f-title").value || "Tanpa judul",
+        desc: document.getElementById("f-desc").value || "",
+        status: document.getElementById("f-status").value,
+        priority: document.getElementById("f-priority").value,
+        health: document.getElementById("f-health").value,
+        progress: Math.max(0, Math.min(100, Number(document.getElementById("f-progress").value || 0))),
+        pic: document.getElementById("f-pic").value || "Belum ditentukan",
+        deadline: document.getElementById("f-deadline").value || "Belum ditentukan",
+        category: document.getElementById("f-category").value || "General",
+        checklist
+      };
+
+      if (currentModalTaskId) {
+        tasks = tasks.map(t => t.id === currentModalTaskId ? task : t);
+      } else {
+        tasks = [task, ...tasks];
+      }
+
+      saveTasks();
+      closeModal();
+      renderApp();
+    }
+
+    function toggleChecklist(taskId, index) {
+      tasks = tasks.map(task => {
+        if (task.id !== taskId) return task;
+        const checklist = task.checklist.map((item, i) => i === index ? { ...item, done: !item.done } : item);
+        const progress = checklist.length ? Math.round((checklist.filter(item => item.done).length / checklist.length) * 100) : task.progress;
+        return { ...task, checklist, progress };
+      });
+      saveTasks();
+      const task = tasks.find(t => t.id === taskId);
+      renderModal(task);
+      renderApp();
+      openTask(taskId);
+    }
+
+    function deleteTask(id) {
+      if (!confirm("Hapus tugas ini?")) return;
+      tasks = tasks.filter(t => t.id !== id);
+      saveTasks();
+      closeModal();
+      renderApp();
+    }
+
+    function closeModal() {
+      currentModalTaskId = null;
+      const modal = document.getElementById("modal");
+      if (modal) modal.innerHTML = "";
+    }
+
+    function setQuery(value) {
+      query = value;
+      renderApp();
+    }
+
+    function setFilter(value) {
+      filter = value;
+      renderApp();
+    }
+
+    function resetData() {
+      if (!confirm("Reset semua data demo?")) return;
+      tasks = JSON.parse(JSON.stringify(defaultTasks));
+      saveTasks();
+      renderApp();
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function escapeAttr(str) {
+      return escapeHtml(str).replaceAll("\n", " ");
+    }
+
+    renderApp();
+  </script>
+</body>
+</html>

@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AttendFlow QR - Demo Aplikasi Absensi QR</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    :root { color-scheme: dark; }
+    body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .glass { background: rgba(255,255,255,.07); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,.10); }
+    .soft-shadow { box-shadow: 0 30px 90px -50px rgba(15,23,42,.85); }
+    .fade-in { animation: fadeIn .45s ease both; }
+    .slide-up { animation: slideUp .45s ease both; }
+    @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: translateY(0) } }
+    .qr-wrap canvas { border-radius: 24px; }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-white">
+  <div class="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,.35),transparent_34%),radial-gradient(circle_at_80%_0%,rgba(6,182,212,.20),transparent_28%),linear-gradient(180deg,#020617,#0f172a)]"></div>
+
+  <div class="flex min-h-screen">
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-72 -translate-x-full border-r border-white/10 bg-slate-950/90 p-4 backdrop-blur-2xl transition-transform duration-300 lg:static lg:translate-x-0">
+      <div class="flex items-center justify-between gap-3 px-2 py-2">
+        <div class="flex items-center gap-3">
+          <div class="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-400 text-white shadow-lg shadow-blue-500/25">
+            <i data-lucide="qr-code" class="h-6 w-6"></i>
+          </div>
+          <div>
+            <div class="text-lg font-semibold tracking-tight">AttendFlow</div>
+            <div class="text-xs text-slate-400">QR Attendance SaaS</div>
+          </div>
+        </div>
+        <button id="closeSidebar" class="rounded-xl p-2 text-slate-400 hover:bg-white/10 lg:hidden"><i data-lucide="x" class="h-5 w-5"></i></button>
+      </div>
+
+      <nav class="mt-8 space-y-1">
+        <button class="flex w-full items-center gap-3 rounded-2xl bg-white px-3 py-3 text-sm font-medium text-slate-950"><i data-lucide="bar-chart-3" class="h-5 w-5"></i>Dashboard</button>
+        <button class="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-sm font-medium text-slate-300 hover:bg-white/10"><i data-lucide="calendar-days" class="h-5 w-5"></i>Events</button>
+        <button class="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-sm font-medium text-slate-300 hover:bg-white/10"><i data-lucide="qr-code" class="h-5 w-5"></i>QR Generator</button>
+        <button class="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-sm font-medium text-slate-300 hover:bg-white/10"><i data-lucide="user-check" class="h-5 w-5"></i>Attendance</button>
+        <button class="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-sm font-medium text-slate-300 hover:bg-white/10"><i data-lucide="file-spreadsheet" class="h-5 w-5"></i>Reports</button>
+        <button class="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-sm font-medium text-slate-300 hover:bg-white/10"><i data-lucide="settings" class="h-5 w-5"></i>Settings</button>
+      </nav>
+
+      <div class="mt-8 rounded-3xl border border-blue-500/20 bg-gradient-to-br from-blue-500/15 via-cyan-500/10 to-transparent p-4">
+        <div class="flex items-center gap-2 text-sm font-semibold"><i data-lucide="sparkles" class="h-4 w-4 text-blue-300"></i>AI-ready</div>
+        <p class="mt-2 text-xs leading-5 text-slate-300">Struktur siap untuk ringkasan otomatis, deteksi duplikat, dan laporan kegiatan berbasis AI.</p>
+      </div>
+    </aside>
+
+    <div id="overlay" class="fixed inset-0 z-30 hidden bg-slate-950/50 backdrop-blur-sm lg:hidden"></div>
+
+    <main class="flex-1 overflow-hidden">
+      <header class="sticky top-0 z-20 border-b border-white/10 bg-slate-950/40 px-4 py-4 backdrop-blur-2xl lg:px-8">
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <button id="openSidebar" class="rounded-2xl border border-white/10 bg-white/10 p-2 text-white lg:hidden"><i data-lucide="menu" class="h-5 w-5"></i></button>
+            <div>
+              <div class="text-sm text-slate-400">KPPBC TMP C Pangkalpinang</div>
+              <h1 class="text-xl font-semibold tracking-tight sm:text-2xl">Dashboard Absensi QR</h1>
+            </div>
+          </div>
+          <button id="createEventBtn" class="inline-flex items-center gap-2 rounded-2xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-lg transition hover:-translate-y-0.5">
+            <i data-lucide="plus" class="h-4 w-4"></i>Buat Event
+          </button>
+        </div>
+      </header>
+
+      <div class="px-4 py-6 lg:px-8 lg:py-8">
+        <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div class="glass soft-shadow slide-up rounded-3xl p-5"><div class="flex items-start justify-between gap-4"><div><p class="text-sm text-slate-400">Event aktif</p><div id="activeEvents" class="mt-2 text-3xl font-semibold">1</div><p class="mt-2 text-xs text-slate-400">3 event dalam workspace</p></div><div class="rounded-2xl border border-blue-500/20 bg-blue-500/10 p-3 text-blue-300"><i data-lucide="calendar-days" class="h-5 w-5"></i></div></div></div>
+          <div class="glass soft-shadow slide-up rounded-3xl p-5"><div class="flex items-start justify-between gap-4"><div><p class="text-sm text-slate-400">Peserta hadir</p><div id="totalAttendance" class="mt-2 text-3xl font-semibold">0</div><p id="attendanceRate" class="mt-2 text-xs text-slate-400">0% dari target event</p></div><div class="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-emerald-300"><i data-lucide="users" class="h-5 w-5"></i></div></div></div>
+          <div class="glass soft-shadow slide-up rounded-3xl p-5"><div class="flex items-start justify-between gap-4"><div><p class="text-sm text-slate-400">Valid lokasi</p><div id="validLocation" class="mt-2 text-3xl font-semibold">0</div><p id="needCheck" class="mt-2 text-xs text-slate-400">0 perlu pengecekan</p></div><div class="rounded-2xl border border-violet-500/20 bg-violet-500/10 p-3 text-violet-300"><i data-lucide="shield-check" class="h-5 w-5"></i></div></div></div>
+          <div class="glass soft-shadow slide-up rounded-3xl p-5"><div class="flex items-start justify-between gap-4"><div><p class="text-sm text-slate-400">Radius validasi</p><div id="radiusInfo" class="mt-2 text-3xl font-semibold">100m</div><p class="mt-2 text-xs text-slate-400">Bisa diatur per event</p></div><div class="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-3 text-amber-300"><i data-lucide="gauge" class="h-5 w-5"></i></div></div></div>
+        </section>
+
+        <section class="mt-6 grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
+          <div class="glass soft-shadow rounded-3xl p-5 fade-in">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-sm text-slate-400">QR aktif</p>
+                <h2 id="eventTitle" class="mt-1 text-xl font-semibold tracking-tight">Pelatihan Ekspor UMKM Bangka</h2>
+                <p id="eventLocation" class="mt-1 text-sm text-slate-400">Aula KPPBC TMP C Pangkalpinang</p>
+              </div>
+              <span class="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-300"><i data-lucide="check-circle-2" class="h-3.5 w-3.5"></i>Aktif</span>
+            </div>
+
+            <div class="mt-6 grid gap-5 lg:grid-cols-[220px_1fr]">
+              <div class="qr-wrap rounded-[2rem] border border-white/10 bg-white p-4 shadow-inner">
+                <canvas id="qrCanvas"></canvas>
+              </div>
+              <div class="flex flex-col justify-between gap-5">
+                <div class="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
+                  <div class="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">Public Check-in URL</div>
+                  <div class="mt-2 flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 text-sm text-slate-200">
+                    <span id="publicUrl" class="truncate">https://attendflow.app/check-in/evt-001</span>
+                    <button id="copyUrl"><i data-lucide="copy" class="h-4 w-4 text-slate-400"></i></button>
+                  </div>
+                </div>
+                <div class="grid gap-3 sm:grid-cols-3">
+                  <button id="displayQr" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-slate-950 transition hover:-translate-y-0.5"><i data-lucide="eye" class="h-4 w-4"></i>Display</button>
+                  <button id="downloadQr" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5"><i data-lucide="download" class="h-4 w-4"></i>PNG</button>
+                  <button id="exportExcel" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5"><i data-lucide="file-spreadsheet" class="h-4 w-4"></i>Excel</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass soft-shadow rounded-3xl p-5 fade-in">
+            <div class="flex items-center justify-between">
+              <div><p class="text-sm text-slate-400">Live demo</p><h3 class="mt-1 text-xl font-semibold tracking-tight">Form Hadir Peserta</h3></div>
+              <div class="rounded-2xl border border-blue-500/20 bg-blue-500/10 p-3 text-blue-300"><i data-lucide="smartphone" class="h-5 w-5"></i></div>
+            </div>
+            <form id="attendanceForm" class="mt-5 space-y-3">
+              <input id="nameInput" placeholder="Nama peserta" required class="w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm outline-none transition placeholder:text-slate-500 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10" />
+              <input id="institutionInput" placeholder="Instansi / komunitas" class="w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm outline-none transition placeholder:text-slate-500 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10" />
+              <input id="phoneInput" placeholder="Nomor HP" class="w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm outline-none transition placeholder:text-slate-500 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10" />
+              <div class="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-xs leading-5 text-emerald-300">Lokasi simulasi aktif. Sistem menyimpan waktu server, jarak lokasi, dan perangkat peserta.</div>
+              <button class="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition hover:-translate-y-0.5"><i data-lucide="check-circle-2" class="h-4 w-4"></i>Kirim Kehadiran</button>
+            </form>
+            <div id="successMsg" class="mt-4 hidden rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-sm font-medium text-emerald-300">Data hadir berhasil masuk ke dashboard.</div>
+          </div>
+        </section>
+
+        <section class="mt-6 grid gap-6 xl:grid-cols-[0.75fr_1.25fr]">
+          <div class="glass soft-shadow rounded-3xl p-5">
+            <div class="flex items-center justify-between"><div><p class="text-sm text-slate-400">Manajemen event</p><h3 class="mt-1 text-xl font-semibold tracking-tight">Event Aktif</h3></div><button id="addEventSmall" class="rounded-2xl border border-white/10 bg-white/10 p-3 text-white hover:bg-white/15"><i data-lucide="plus" class="h-5 w-5"></i></button></div>
+            <div id="eventList" class="mt-5 space-y-3"></div>
+          </div>
+
+          <div class="glass soft-shadow rounded-3xl p-5">
+            <div class="flex items-center justify-between"><div><p class="text-sm text-slate-400">Kesehatan event</p><h3 class="mt-1 text-xl font-semibold tracking-tight">Live Attendance Pulse</h3></div><i data-lucide="activity" class="h-5 w-5 text-blue-400"></i></div>
+            <div class="mt-5 flex h-28 items-end gap-2" id="chartBars"></div>
+            <div class="mt-4 grid gap-3 sm:grid-cols-3">
+              <div class="rounded-2xl bg-white/5 p-3"><div class="text-xs text-slate-400">Peak check-in</div><div class="mt-1 font-semibold">08.15 - 08.45</div></div>
+              <div class="rounded-2xl bg-white/5 p-3"><div class="text-xs text-slate-400">Device dominan</div><div class="mt-1 font-semibold">Android</div></div>
+              <div class="rounded-2xl bg-white/5 p-3"><div class="text-xs text-slate-400">Validasi</div><div id="validationSummary" class="mt-1 font-semibold">0/0 valid</div></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="glass soft-shadow mt-6 rounded-3xl p-5">
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div><p class="text-sm text-slate-400">Rekap real time</p><h3 class="mt-1 text-xl font-semibold tracking-tight">Peserta Hadir</h3></div>
+            <div class="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/10 px-3 py-2"><i data-lucide="search" class="h-4 w-4 text-slate-400"></i><input id="searchInput" placeholder="Cari peserta" class="w-44 bg-transparent text-sm outline-none placeholder:text-slate-400" /></div>
+          </div>
+          <div class="mt-5 overflow-hidden rounded-2xl border border-white/10">
+            <div class="hidden grid-cols-[1.5fr_1.2fr_0.8fr_0.8fr_0.8fr] gap-4 border-b border-white/10 bg-white/5 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400 lg:grid"><div>Nama</div><div>Instansi</div><div>Waktu</div><div>Lokasi</div><div>Status</div></div>
+            <div id="attendanceRows" class="divide-y divide-white/10"></div>
+          </div>
+        </section>
+
+        <section class="soft-shadow mt-6 rounded-3xl border border-white/10 bg-gradient-to-br from-slate-950 to-blue-950 p-6 text-white">
+          <div class="grid gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+            <div><div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-medium text-cyan-200"><i data-lucide="building-2" class="h-3.5 w-3.5"></i>Enterprise-ready structure</div><h2 class="mt-4 text-2xl font-semibold tracking-tight sm:text-3xl">Siap dikembangkan menjadi produk SaaS absensi profesional.</h2><p class="mt-3 max-w-2xl text-sm leading-6 text-slate-300">Prototipe ini sudah menggambarkan fondasi produk: multi event, QR unik, dashboard real time, validasi lokasi, rekap peserta, export Excel, audit trail, RBAC, dan arsitektur AI-ready.</p></div>
+            <div class="grid gap-3 sm:grid-cols-2"><div class="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-medium">Supabase Auth</div><div class="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-medium">PostgreSQL RLS</div><div class="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-medium">Excel Export</div><div class="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-medium">Realtime Check-in</div><div class="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-medium">Audit Trail</div><div class="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-medium">AI Reports</div></div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div id="qrModal" class="fixed inset-0 z-50 hidden place-items-center bg-slate-950/80 p-4 backdrop-blur-xl">
+    <div class="w-full max-w-lg rounded-[2rem] border border-white/10 bg-slate-950 p-6 text-center shadow-2xl">
+      <div class="flex items-center justify-between"><h3 class="text-xl font-semibold">QR Display Mode</h3><button id="closeQrModal" class="rounded-xl p-2 hover:bg-white/10"><i data-lucide="x" class="h-5 w-5"></i></button></div>
+      <div class="mt-6 rounded-[2rem] bg-white p-6"><canvas id="qrCanvasLarge" class="mx-auto"></canvas></div>
+      <p id="modalEventTitle" class="mt-4 text-sm text-slate-300"></p>
+    </div>
+  </div>
+
+  <script>
+    const events = [
+      { id: "EVT-001", title: "Pelatihan Ekspor UMKM Bangka", type: "Pelatihan", date: "2026-05-21", time: "08.30 - 12.00 WIB", location: "Aula KPPBC TMP C Pangkalpinang", status: "Aktif", expected: 120, radius: 100 },
+      { id: "EVT-002", title: "Seminar Digitalisasi Layanan", type: "Seminar", date: "2026-05-24", time: "09.00 - 11.30 WIB", location: "Ruang Rapat Utama", status: "Draft", expected: 75, radius: 80 },
+      { id: "EVT-003", title: "Kelas Komunitas Kreatif", type: "Komunitas", date: "2026-05-29", time: "19.30 - 21.00 WIB", location: "Nexara Creative Space", status: "Terjadwal", expected: 45, radius: 60 }
+    ];
+
+    let activeEvent = events[0];
+    let attendance = [
+      { id: "A-1001", name: "Rizky Pratama", institution: "UMKM Kopi Lada", phone: "0812-8899-1001", eventId: "EVT-001", time: "08.12", status: "Valid", distance: 24, device: "Android" },
+      { id: "A-1002", name: "Nadia Putri", institution: "Dinas Koperasi", phone: "0813-7788-4402", eventId: "EVT-001", time: "08.17", status: "Valid", distance: 41, device: "iPhone" },
+      { id: "A-1003", name: "Bima Saputra", institution: "CV Maju Ekspor", phone: "0821-5533-9981", eventId: "EVT-001", time: "08.24", status: "Perlu Cek", distance: 142, device: "Android" },
+      { id: "A-1004", name: "Siti Rahma", institution: "Kelas UMKM Mandiri", phone: "0852-4401-2133", eventId: "EVT-001", time: "08.31", status: "Valid", distance: 18, device: "Chrome Desktop" },
+      { id: "A-1005", name: "Yudha Mahendra", institution: "Komunitas Export Club", phone: "0877-1000-7788", eventId: "EVT-001", time: "08.42", status: "Valid", distance: 36, device: "Android" }
+    ];
+
+    const $ = (id) => document.getElementById(id);
+
+    function publicUrl() { return `https://attendflow.app/check-in/${activeEvent.id.toLowerCase()}`; }
+
+    function statusBadge(status) {
+      if (status === "Valid") return `<span class="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-300"><i data-lucide="check-circle-2" class="h-3.5 w-3.5"></i>Valid</span>`;
+      return `<span class="inline-flex items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-300"><i data-lucide="alert-triangle" class="h-3.5 w-3.5"></i>Perlu Cek</span>`;
+    }
+
+    function drawQR() {
+      QRCode.toCanvas($("qrCanvas"), publicUrl(), { width: 188, margin: 1, color: { dark: "#020617", light: "#ffffff" } });
+      QRCode.toCanvas($("qrCanvasLarge"), publicUrl(), { width: 380, margin: 2, color: { dark: "#020617", light: "#ffffff" } });
+    }
+
+    function renderEvents() {
+      $("eventList").innerHTML = events.map(event => `
+        <button data-event="${event.id}" class="event-btn w-full rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 ${activeEvent.id === event.id ? "border-blue-500/30 bg-blue-500/10 shadow-lg shadow-blue-500/10" : "border-white/10 bg-white/5 hover:bg-white/10"}">
+          <div class="flex items-start justify-between gap-3">
+            <div><div class="font-semibold">${event.title}</div><div class="mt-2 flex flex-wrap gap-2 text-xs text-slate-400"><span class="inline-flex items-center gap-1"><i data-lucide="calendar-days" class="h-3.5 w-3.5"></i>${event.date}</span><span class="inline-flex items-center gap-1"><i data-lucide="users" class="h-3.5 w-3.5"></i>${event.expected} target</span></div></div>
+            <i data-lucide="chevron-right" class="h-5 w-5 text-slate-400"></i>
+          </div>
+        </button>`).join("");
+      document.querySelectorAll(".event-btn").forEach(btn => btn.addEventListener("click", () => {
+        activeEvent = events.find(e => e.id === btn.dataset.event);
+        renderAll();
+      }));
+    }
+
+    function renderAttendance() {
+      const q = ($("searchInput").value || "").toLowerCase();
+      const rows = attendance.filter(row => row.eventId === activeEvent.id).filter(row => row.name.toLowerCase().includes(q) || row.institution.toLowerCase().includes(q) || row.phone.includes(q));
+      $("attendanceRows").innerHTML = rows.map(row => `
+        <div class="grid gap-3 px-4 py-4 lg:grid-cols-[1.5fr_1.2fr_0.8fr_0.8fr_0.8fr] lg:items-center lg:gap-4">
+          <div><div class="font-medium">${row.name}</div><div class="mt-1 text-xs text-slate-400">${row.phone}</div></div>
+          <div class="text-sm text-slate-300">${row.institution}</div>
+          <div class="flex items-center gap-2 text-sm text-slate-300"><i data-lucide="clock" class="h-4 w-4 text-slate-400"></i>${row.time}</div>
+          <div class="flex items-center gap-2 text-sm text-slate-300"><i data-lucide="map-pin" class="h-4 w-4 text-slate-400"></i>${row.distance} m</div>
+          <div>${statusBadge(row.status)}</div>
+        </div>
+      `).join("") || `<div class="p-8 text-center text-sm text-slate-400">Belum ada data peserta untuk event ini.</div>`;
+    }
+
+    function renderStats() {
+      const rows = attendance.filter(row => row.eventId === activeEvent.id);
+      const valid = rows.filter(row => row.status === "Valid").length;
+      const rate = Math.round((rows.length / activeEvent.expected) * 100);
+      $("totalAttendance").textContent = rows.length;
+      $("attendanceRate").textContent = `${rate}% dari target event`;
+      $("validLocation").textContent = valid;
+      $("needCheck").textContent = `${rows.length - valid} perlu pengecekan`;
+      $("radiusInfo").textContent = `${activeEvent.radius}m`;
+      $("validationSummary").textContent = `${valid}/${rows.length} valid`;
+    }
+
+    function renderHeader() {
+      $("eventTitle").textContent = activeEvent.title;
+      $("eventLocation").textContent = activeEvent.location;
+      $("publicUrl").textContent = publicUrl();
+      $("modalEventTitle").textContent = `${activeEvent.title} · ${activeEvent.location}`;
+    }
+
+    function renderChart() {
+      const values = [32, 44, 38, 61, 48, 72, 55, 84, 67, 91, 74, 88];
+      $("chartBars").innerHTML = values.map((height, i) => `<div class="flex-1 rounded-t-xl bg-gradient-to-t from-blue-600 to-cyan-400 opacity-90" style="height:${height}%; animation:slideUp .4s ease ${i * .03}s both"></div>`).join("");
+    }
+
+    function renderAll() {
+      renderHeader(); renderStats(); renderEvents(); renderAttendance(); renderChart(); drawQR(); lucide.createIcons();
+    }
+
+    function exportExcel() {
+      const rows = attendance.filter(row => row.eventId === activeEvent.id).map(row => ({
+        Event: activeEvent.title,
+        Nama: row.name,
+        Instansi: row.institution,
+        Telepon: row.phone,
+        Waktu_Hadir: row.time,
+        Status: row.status,
+        Jarak_Meter: row.distance,
+        Perangkat: row.device
+      }));
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Rekap Absensi");
+      XLSX.writeFile(wb, `rekap_absensi_${activeEvent.id}.xlsx`);
+    }
+
+    function downloadQR() {
+      const link = document.createElement("a");
+      link.download = `qr_${activeEvent.id}.png`;
+      link.href = $("qrCanvas").toDataURL("image/png");
+      link.click();
+    }
+
+    $("attendanceForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = $("nameInput").value.trim();
+      if (!name) return;
+      const distance = Math.floor(Math.random() * 180) + 8;
+      const now = new Date();
+      attendance.unshift({
+        id: `A-${Math.floor(Math.random() * 9000) + 1000}`,
+        name,
+        institution: $("institutionInput").value.trim() || "Peserta Umum",
+        phone: $("phoneInput").value.trim() || "-",
+        eventId: activeEvent.id,
+        time: now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }),
+        status: distance <= activeEvent.radius ? "Valid" : "Perlu Cek",
+        distance,
+        device: "Mobile Browser"
+      });
+      e.target.reset();
+      $("successMsg").classList.remove("hidden");
+      setTimeout(() => $("successMsg").classList.add("hidden"), 2200);
+      renderAll();
+    });
+
+    $("searchInput").addEventListener("input", renderAttendance);
+    $("exportExcel").addEventListener("click", exportExcel);
+    $("downloadQr").addEventListener("click", downloadQR);
+    $("copyUrl").addEventListener("click", () => navigator.clipboard.writeText(publicUrl()));
+    $("displayQr").addEventListener("click", () => { $("qrModal").classList.remove("hidden"); $("qrModal").classList.add("grid"); drawQR(); });
+    $("closeQrModal").addEventListener("click", () => { $("qrModal").classList.add("hidden"); $("qrModal").classList.remove("grid"); });
+    $("qrModal").addEventListener("click", (e) => { if (e.target.id === "qrModal") { $("qrModal").classList.add("hidden"); $("qrModal").classList.remove("grid"); } });
+    $("openSidebar").addEventListener("click", () => { $("sidebar").classList.remove("-translate-x-full"); $("overlay").classList.remove("hidden"); });
+    $("closeSidebar").addEventListener("click", () => { $("sidebar").classList.add("-translate-x-full"); $("overlay").classList.add("hidden"); });
+    $("overlay").addEventListener("click", () => { $("sidebar").classList.add("-translate-x-full"); $("overlay").classList.add("hidden"); });
+    $("createEventBtn").addEventListener("click", () => alert("Demo: tombol ini disiapkan untuk modal Create Event pada versi database."));
+    $("addEventSmall").addEventListener("click", () => alert("Demo: tombol ini disiapkan untuk tambah event."));
+
+    renderAll();
+  </script>
+</body>
+</html>

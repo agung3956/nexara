@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nexara Company Profile Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">N</div>
+        <div>
+          <div class="brand-name">Nexara</div>
+          <div class="brand-subtitle">Profile AI</div>
+        </div>
+      </div>
+      <nav class="nav-list">
+        <button class="nav-item active">Dashboard</button>
+        <button class="nav-item">Generator</button>
+        <button class="nav-item">Templates</button>
+        <button class="nav-item">Documents</button>
+        <button class="nav-item">Brand Kit</button>
+      </nav>
+      <div class="sidebar-card">
+        <span class="pill">Demo MVP</span>
+        <p>Buat company profile profesional dari form sederhana.</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Company Profile Generator</p>
+          <h1>Buat profil usaha siap pakai dalam hitungan detik.</h1>
+        </div>
+        <div class="top-actions">
+          <button id="themeToggle" class="ghost-btn">Mode Gelap</button>
+          <button id="resetBtn" class="ghost-btn">Reset</button>
+        </div>
+      </header>
+
+      <section class="hero-grid">
+        <div class="metric-card">
+          <span>Template</span>
+          <strong>6</strong>
+          <p>UMKM, koperasi, yayasan, sekolah, kantor, komunitas</p>
+        </div>
+        <div class="metric-card">
+          <span>Output</span>
+          <strong>4</strong>
+          <p>Profil singkat, lengkap, proposal, dan website</p>
+        </div>
+        <div class="metric-card accent">
+          <span>Status</span>
+          <strong>AI Ready</strong>
+          <p>Siap disambungkan ke OpenAI, Gemini, atau model lokal</p>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <form id="profileForm" class="panel form-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Input Data</p>
+              <h2>Informasi Usaha</h2>
+            </div>
+            <span class="progress-badge">Step 1/1</span>
+          </div>
+
+          <div class="form-grid">
+            <label>Nama Usaha
+              <input id="businessName" placeholder="Contoh: Kopi Lada Bangka" required />
+            </label>
+            <label>Bidang Usaha
+              <input id="businessField" placeholder="Contoh: makanan, kopi, jasa, pendidikan" required />
+            </label>
+            <label>Tahun Berdiri
+              <input id="foundedYear" placeholder="Contoh: 2022" />
+            </label>
+            <label>Target Pelanggan
+              <input id="targetMarket" placeholder="Contoh: keluarga, reseller, instansi" />
+            </label>
+          </div>
+
+          <label>Produk atau Layanan
+            <textarea id="services" placeholder="Tuliskan produk atau layanan utama"></textarea>
+          </label>
+          <label>Keunggulan Usaha
+            <textarea id="advantages" placeholder="Contoh: bahan lokal, kualitas stabil, pelayanan cepat"></textarea>
+          </label>
+
+          <div class="form-grid">
+            <label>Alamat
+              <input id="address" placeholder="Contoh: Pangkalpinang, Bangka Belitung" />
+            </label>
+            <label>Kontak
+              <input id="contact" placeholder="Contoh: WhatsApp, email, Instagram" />
+            </label>
+          </div>
+
+          <div class="form-grid">
+            <label>Gaya Bahasa
+              <select id="tone">
+                <option value="formal">Formal</option>
+                <option value="semi-formal" selected>Semi-formal</option>
+                <option value="promosi">Promosi</option>
+                <option value="ringkas">Ringkas</option>
+              </select>
+            </label>
+            <label>Jenis Output
+              <select id="docType">
+                <option value="lengkap" selected>Profil Lengkap</option>
+                <option value="singkat">Profil Singkat</option>
+                <option value="proposal">Versi Proposal</option>
+                <option value="website">Versi Website</option>
+              </select>
+            </label>
+          </div>
+
+          <button class="primary-btn" type="submit">Generate Company Profile</button>
+        </form>
+
+        <section class="panel preview-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Live Preview</p>
+              <h2>Draft Company Profile</h2>
+            </div>
+            <div class="preview-actions">
+              <button id="copyBtn" class="ghost-btn">Copy</button>
+              <button id="downloadBtn" class="ghost-btn">Download TXT</button>
+              <button id="printBtn" class="ghost-btn">Print PDF</button>
+            </div>
+          </div>
+          <textarea id="output" class="output-editor" spellcheck="false">Isi form di sebelah kiri, lalu klik Generate Company Profile. Hasilnya akan muncul di sini dan bisa diedit langsung.</textarea>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast">Berhasil disalin.</div>
+  <script src="script.js"></script>
+</body>
+</html>

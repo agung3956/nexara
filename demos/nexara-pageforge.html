@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nexara PageForge | Mini Landing Page Builder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070914;
+      --panel: rgba(255,255,255,.075);
+      --panel-strong: rgba(255,255,255,.12);
+      --text: #f7f8ff;
+      --muted: #9ca3b8;
+      --line: rgba(255,255,255,.12);
+      --brand: #7c3aed;
+      --brand2: #06b6d4;
+      --success: #10b981;
+      --danger: #ef4444;
+      --shadow: 0 30px 80px rgba(0,0,0,.35);
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(124,58,237,.35), transparent 32%),
+        radial-gradient(circle at top right, rgba(6,182,212,.22), transparent 30%),
+        linear-gradient(135deg, #060711 0%, #0b1020 50%, #050711 100%);
+      min-height: 100vh;
+    }
+
+    button, input, textarea, select { font: inherit; }
+
+    .app {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      border-right: 1px solid var(--line);
+      background: rgba(4,7,18,.62);
+      backdrop-filter: blur(22px);
+      padding: 24px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .brand-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 15px;
+      background: linear-gradient(135deg, var(--brand), var(--brand2));
+      box-shadow: 0 12px 32px rgba(124,58,237,.36);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+    }
+
+    .brand-title { font-size: 17px; font-weight: 800; letter-spacing: -.04em; }
+    .brand-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    .nav-label {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      margin: 24px 0 10px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border-radius: 14px;
+      color: #d8dcf0;
+      margin-bottom: 8px;
+      background: transparent;
+    }
+
+    .nav-item.active {
+      background: rgba(255,255,255,.11);
+      border: 1px solid rgba(255,255,255,.12);
+    }
+
+    .badge {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(16,185,129,.14);
+      color: #6ee7b7;
+    }
+
+    .main {
+      padding: 26px;
+      overflow: hidden;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 22px;
+      gap: 16px;
+    }
+
+    .headline h1 {
+      margin: 0;
+      font-size: clamp(26px, 3vw, 44px);
+      letter-spacing: -.06em;
+      line-height: 1;
+    }
+
+    .headline p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      max-width: 680px;
+      line-height: 1.6;
+    }
+
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+
+    .btn {
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding: 11px 15px;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); background: rgba(255,255,255,.13); }
+
+    .btn.primary {
+      border: none;
+      background: linear-gradient(135deg, var(--brand), var(--brand2));
+      box-shadow: 0 16px 40px rgba(124,58,237,.24);
+      font-weight: 700;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(330px, 420px) 1fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(24px);
+    }
+
+    .form-panel { padding: 20px; }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .section-title h2 { margin: 0; font-size: 18px; letter-spacing: -.03em; }
+    .section-title span { color: var(--muted); font-size: 12px; }
+
+    .field { margin-bottom: 14px; }
+    .field label { display: block; color: #ccd2e7; font-size: 13px; margin-bottom: 7px; font-weight: 600; }
+
+    .field input, .field textarea, .field select {
+      width: 100%;
+      color: var(--text);
+      background: rgba(255,255,255,.075);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 14px;
+      padding: 12px 13px;
+      outline: none;
+      transition: .18s ease;
+    }
+
+    .field textarea { min-height: 78px; resize: vertical; }
+    .field input:focus, .field textarea:focus, .field select:focus { border-color: rgba(124,58,237,.7); box-shadow: 0 0 0 4px rgba(124,58,237,.12); }
+    option { background: #0b1020; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .color-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    .color-dot {
+      height: 38px;
+      border-radius: 13px;
+      border: 1px solid rgba(255,255,255,.18);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .color-dot.active::after {
+      content: "✓";
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      color: white;
+      text-shadow: 0 1px 6px rgba(0,0,0,.4);
+    }
+
+    .preview-wrap { padding: 16px; }
+
+    .preview-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 4px 14px;
+      gap: 12px;
+    }
+
+    .device-switch {
+      display: flex;
+      padding: 4px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+    }
+
+    .device-switch button {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    .device-switch button.active { background: rgba(255,255,255,.14); color: var(--text); }
+
+    .browser {
+      overflow: hidden;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: #ffffff;
+      color: #111827;
+      transition: .25s ease;
+      margin: 0 auto;
+    }
+
+    .browser.mobile { max-width: 390px; }
+
+    .browser-bar {
+      height: 42px;
+      background: #f1f5f9;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      gap: 8px;
+    }
+
+    .dot { width: 10px; height: 10px; border-radius: 999px; background: #cbd5e1; }
+    .url { margin-left: 8px; font-size: 12px; color: #64748b; background: white; border: 1px solid #e2e8f0; padding: 6px 12px; border-radius: 999px; flex: 1; }
+
+    .site {
+      --site-brand: var(--brand);
+      --site-brand2: var(--brand2);
+      background: #fbfcff;
+    }
+
+    .site-hero {
+      padding: clamp(34px, 6vw, 72px);
+      background:
+        radial-gradient(circle at 15% 5%, color-mix(in srgb, var(--site-brand) 22%, transparent), transparent 38%),
+        linear-gradient(145deg, #ffffff, #f8fafc);
+    }
+
+    .site-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 54px; }
+    .site-logo { font-weight: 900; letter-spacing: -.04em; color: #0f172a; }
+    .site-pill { padding: 9px 13px; border-radius: 999px; background: #eef2ff; color: #334155; font-size: 12px; font-weight: 700; }
+
+    .site-hero h1 {
+      margin: 0;
+      font-size: clamp(34px, 5vw, 68px);
+      line-height: .98;
+      letter-spacing: -.075em;
+      max-width: 720px;
+      color: #0f172a;
+    }
+
+    .site-hero p { color: #475569; font-size: 17px; line-height: 1.75; max-width: 660px; margin: 20px 0 28px; }
+
+    .site-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .site-btn { padding: 13px 17px; border-radius: 14px; border: 1px solid #e2e8f0; color: #0f172a; background: white; font-weight: 800; text-decoration: none; }
+    .site-btn.main { background: linear-gradient(135deg, var(--site-brand), var(--site-brand2)); color: white; border: none; box-shadow: 0 18px 44px color-mix(in srgb, var(--site-brand) 26%, transparent); }
+
+    .site-content { padding: clamp(28px, 5vw, 62px); }
+    .mini-title { color: var(--site-brand); font-weight: 900; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 10px; }
+    .site-content h2 { color: #0f172a; font-size: clamp(25px, 3vw, 40px); letter-spacing: -.05em; margin: 0 0 20px; }
+
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .site-card { border: 1px solid #e2e8f0; border-radius: 20px; padding: 20px; background: white; box-shadow: 0 14px 34px rgba(15,23,42,.06); }
+    .site-card strong { display: block; color: #0f172a; margin-bottom: 8px; }
+    .site-card p { color: #64748b; line-height: 1.65; margin: 0; font-size: 14px; }
+
+    .testimonial { margin-top: 16px; border-radius: 24px; padding: 24px; color: white; background: linear-gradient(135deg, var(--site-brand), var(--site-brand2)); }
+    .testimonial p { font-size: 18px; line-height: 1.7; margin: 0 0 12px; }
+    .testimonial span { opacity: .82; font-weight: 700; }
+
+    .site-footer { padding: 28px 62px; border-top: 1px solid #e2e8f0; color: #64748b; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+    .toast {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      background: rgba(15,23,42,.88);
+      border: 1px solid rgba(255,255,255,.12);
+      color: white;
+      padding: 13px 16px;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: .25s ease;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 1120px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { position: static; height: auto; }
+      .workspace { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 720px) {
+      .main { padding: 16px; }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .actions { justify-content: flex-start; }
+      .grid-2, .cards { grid-template-columns: 1fr; }
+      .site-footer { padding: 24px; }
+      .site-nav { margin-bottom: 32px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand-box">
+        <div class="logo">N</div>
+        <div>
+          <div class="brand-title">Nexara PageForge</div>
+          <div class="brand-sub">Mini landing page builder</div>
+        </div>
+      </div>
+
+      <div class="nav-label">Workspace</div>
+      <div class="nav-item active"><span>Builder</span><span class="badge">Live</span></div>
+      <div class="nav-item"><span>Templates</span><span>7</span></div>
+      <div class="nav-item"><span>Brand Kit</span><span>AI</span></div>
+      <div class="nav-item"><span>Export</span><span>HTML</span></div>
+
+      <div class="nav-label">Demo Value</div>
+      <div class="nav-item"><span>Responsive</span><span>✓</span></div>
+      <div class="nav-item"><span>Modern SaaS UI</span><span>✓</span></div>
+      <div class="nav-item"><span>AI-ready</span><span>✓</span></div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div class="headline">
+          <h1>Buat landing page bisnis dalam hitungan menit.</h1>
+          <p>Isi data usaha, pilih warna brand, lalu lihat preview website secara langsung. Demo ini dirancang untuk menunjukkan kemampuan Nexara dalam membuat produk digital yang cepat, modern, dan meyakinkan.</p>
+        </div>
+        <div class="actions">
+          <button class="btn" onclick="fillSample()">Isi Contoh</button>
+          <button class="btn primary" onclick="exportHTML()">Export HTML</button>
+        </div>
+      </div>
+
+      <section class="workspace">
+        <div class="panel form-panel">
+          <div class="section-title">
+            <h2>Data Usaha</h2>
+            <span>Auto preview</span>
+          </div>
+
+          <div class="field">
+            <label>Nama Usaha</label>
+            <input id="businessName" value="Kopi Senja Bangka" oninput="render()" />
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label>Kategori</label>
+              <select id="category" onchange="render()">
+                <option>Kuliner</option>
+                <option>Jasa Profesional</option>
+                <option>Travel</option>
+                <option>Klinik</option>
+                <option>Produk Digital</option>
+                <option>Event Organizer</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Template</label>
+              <select id="template" onchange="render()">
+                <option>Premium Modern</option>
+                <option>Minimal Clean</option>
+                <option>Bold Startup</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Headline</label>
+            <input id="headline" value="Kopi lokal premium dengan rasa yang dekat dengan rumah." oninput="render()" />
+          </div>
+
+          <div class="field">
+            <label>Deskripsi Singkat</label>
+            <textarea id="description" oninput="render()">Nikmati racikan kopi Bangka, camilan rumahan, dan suasana nyaman untuk bekerja, bertemu teman, atau menikmati waktu santai.</textarea>
+          </div>
+
+          <div class="field">
+            <label>Layanan / Produk</label>
+            <textarea id="services" oninput="render()">Manual Brew\nKopi Susu Aren\nSnack Tradisional</textarea>
+          </div>
+
+          <div class="field">
+            <label>Testimoni</label>
+            <textarea id="testimonial" oninput="render()">Tempatnya nyaman, kopinya enak, dan pelayanannya ramah. Cocok untuk kerja santai sore hari.</textarea>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label>WhatsApp</label>
+              <input id="whatsapp" value="0812-3456-7890" oninput="render()" />
+            </div>
+            <div class="field">
+              <label>Instagram</label>
+              <input id="instagram" value="@kopisenjabangka" oninput="render()" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Alamat</label>
+            <input id="address" value="Pangkalpinang, Kepulauan Bangka Belitung" oninput="render()" />
+          </div>
+
+          <div class="field">
+            <label>Warna Brand</label>
+            <div class="color-row" id="colors"></div>
+          </div>
+        </div>
+
+        <div class="panel preview-wrap">
+          <div class="preview-toolbar">
+            <div>
+              <strong>Live Website Preview</strong><br>
+              <span style="color: var(--muted); font-size: 12px;">Desktop dan mobile ready</span>
+            </div>
+            <div class="device-switch">
+              <button id="desktopBtn" class="active" onclick="setDevice('desktop')">Desktop</button>
+              <button id="mobileBtn" onclick="setDevice('mobile')">Mobile</button>
+            </div>
+          </div>
+          <div class="browser" id="browser">
+            <div class="browser-bar">
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              <div class="url" id="urlText">nexara.site/kopi-senja-bangka</div>
+            </div>
+            <div id="preview"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast">HTML berhasil dibuat.</div>
+
+  <script>
+    const palettes = [
+      ['#7c3aed', '#06b6d4'],
+      ['#2563eb', '#14b8a6'],
+      ['#f97316', '#ef4444'],
+      ['#111827', '#64748b'],
+      ['#16a34a', '#84cc16']
+    ];
+
+    let selectedPalette = palettes[0];
+    let device = 'desktop';
+
+    function escapeHTML(str) {
+      return String(str || '').replace(/[&<>'"]/g, tag => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+      }[tag]));
+    }
+
+    function slugify(text) {
+      return String(text || 'landing-page')
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-')
+        .slice(0, 42) || 'landing-page';
+    }
+
+    function getValue(id) { return document.getElementById(id).value; }
+
+    function renderColors() {
+      const root = document.getElementById('colors');
+      root.innerHTML = palettes.map((p, i) => `
+        <button class="color-dot ${p === selectedPalette ? 'active' : ''}" style="background: linear-gradient(135deg, ${p[0]}, ${p[1]});" onclick="selectPalette(${i})" aria-label="Pilih warna ${i + 1}"></button>
+      `).join('');
+    }
+
+    function selectPalette(index) {
+      selectedPalette = palettes[index];
+      document.documentElement.style.setProperty('--brand', selectedPalette[0]);
+      document.documentElement.style.setProperty('--brand2', selectedPalette[1]);
+      renderColors();
+      render();
+    }
+
+    function servicesHTML() {
+      return getValue('services').split('\n').filter(Boolean).slice(0, 6).map(item => `
+        <div class="site-card">
+          <strong>${escapeHTML(item)}</strong>
+          <p>Layanan unggulan yang dikemas profesional, mudah diakses, dan siap membantu kebutuhan pelanggan.</p>
+        </div>
+      `).join('');
+    }
+
+    function landingHTML() {
+      const business = escapeHTML(getValue('businessName'));
+      const headline = escapeHTML(getValue('headline'));
+      const description = escapeHTML(getValue('description'));
+      const category = escapeHTML(getValue('category'));
+      const testimonial = escapeHTML(getValue('testimonial'));
+      const wa = escapeHTML(getValue('whatsapp'));
+      const ig = escapeHTML(getValue('instagram'));
+      const address = escapeHTML(getValue('address'));
+
+      return `
+        <div class="site" style="--site-brand:${selectedPalette[0]}; --site-brand2:${selectedPalette[1]};">
+          <section class="site-hero">
+            <div class="site-nav">
+              <div class="site-logo">${business}</div>
+              <div class="site-pill">${category}</div>
+            </div>
+            <h1>${headline}</h1>
+            <p>${description}</p>
+            <div class="site-actions">
+              <a class="site-btn main" href="https://wa.me/${wa.replace(/[^0-9]/g, '')}">Hubungi WhatsApp</a>
+              <a class="site-btn" href="#layanan">Lihat Layanan</a>
+            </div>
+          </section>
+          <section class="site-content" id="layanan">
+            <div class="mini-title">Layanan Utama</div>
+            <h2>Solusi yang mudah dipahami dan langsung bisa dipilih pelanggan.</h2>
+            <div class="cards">${servicesHTML()}</div>
+            <div class="testimonial">
+              <p>“${testimonial}”</p>
+              <span>Pelanggan ${business}</span>
+            </div>
+          </section>
+          <footer class="site-footer">
+            <div>${address}</div>
+            <div>${wa} · ${ig}</div>
+          </footer>
+        </div>
+      `;
+    }
+
+    function render() {
+      document.getElementById('preview').innerHTML = landingHTML();
+      document.getElementById('urlText').textContent = 'nexara.site/' + slugify(getValue('businessName'));
+    }
+
+    function setDevice(type) {
+      device = type;
+      document.getElementById('browser').classList.toggle('mobile', type === 'mobile');
+      document.getElementById('desktopBtn').classList.toggle('active', type === 'desktop');
+      document.getElementById('mobileBtn').classList.toggle('active', type === 'mobile');
+    }
+
+    function fillSample() {
+      document.getElementById('businessName').value = 'Nusantara Travel Care';
+      document.getElementById('category').value = 'Travel';
+      document.getElementById('headline').value = 'Paket perjalanan keluarga yang nyaman, rapi, dan terarah.';
+      document.getElementById('description').value = 'Kami membantu merancang perjalanan keluarga, instansi, dan komunitas dengan itinerary jelas, pendampingan ramah, serta dokumentasi perjalanan yang tertata.';
+      document.getElementById('services').value = 'Paket Wisata Keluarga\nPerjalanan Instansi\nCustom Itinerary';
+      document.getElementById('testimonial').value = 'Perjalanannya teratur, komunikasinya jelas, dan keluarga kami merasa sangat terbantu sejak awal sampai pulang.';
+      document.getElementById('whatsapp').value = '0813-9988-7766';
+      document.getElementById('instagram').value = '@nusantaratravelcare';
+      document.getElementById('address').value = 'Indonesia';
+      selectPalette(1);
+      render();
+      showToast('Data contoh berhasil dimasukkan.');
+    }
+
+    function exportHTML() {
+      const full = `<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${escapeHTML(getValue('businessName'))}</title><style>${document.querySelector('style').innerHTML}</style></head><body>${landingHTML()}</body></html>`;
+      const blob = new Blob([full], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = slugify(getValue('businessName')) + '.html';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast('File HTML landing page berhasil dibuat.');
+    }
+
+    function showToast(text) {
+      const toast = document.getElementById('toast');
+      toast.textContent = text;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    renderColors();
+    render();
+  </script>
+</body>
+</html>

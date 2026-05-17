@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nexara OrderFlow | Admin Order Digital</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #080b13;
+      --bg-soft: #0e1320;
+      --card: rgba(255,255,255,.075);
+      --card-strong: rgba(255,255,255,.115);
+      --border: rgba(255,255,255,.12);
+      --text: #f7f8fb;
+      --muted: #8f98ad;
+      --muted-2: #c3cad8;
+      --primary: #7c5cff;
+      --primary-2: #00d4ff;
+      --success: #35d39d;
+      --warning: #ffc857;
+      --danger: #ff5f74;
+      --shadow: 0 20px 70px rgba(0,0,0,.45);
+      --radius: 24px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(124,92,255,.35), transparent 30%),
+        radial-gradient(circle at 80% 10%, rgba(0,212,255,.18), transparent 25%),
+        linear-gradient(135deg, #060913 0%, #0b1020 55%, #05070d 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    button, input, select, textarea { font: inherit; }
+    .app { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+    .sidebar {
+      position: sticky; top: 0; height: 100vh; padding: 24px;
+      border-right: 1px solid var(--border); background: rgba(8,11,19,.72);
+      backdrop-filter: blur(24px);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 34px; }
+    .logo {
+      width: 42px; height: 42px; border-radius: 15px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      box-shadow: 0 12px 35px rgba(124,92,255,.35);
+      display: grid; place-items: center; font-weight: 800;
+    }
+    .brand h1 { font-size: 17px; margin: 0; letter-spacing: -.03em; }
+    .brand p { margin: 3px 0 0; color: var(--muted); font-size: 12px; }
+    .nav { display: grid; gap: 7px; }
+    .nav button {
+      width: 100%; border: 0; color: var(--muted-2); background: transparent;
+      display: flex; align-items: center; gap: 12px; padding: 13px 14px; border-radius: 16px;
+      cursor: pointer; transition: .2s ease;
+    }
+    .nav button:hover, .nav button.active { background: var(--card); color: var(--text); }
+    .nav .icon { width: 24px; text-align: center; }
+    .side-card {
+      position: absolute; left: 24px; right: 24px; bottom: 24px; padding: 18px;
+      border: 1px solid var(--border); border-radius: 22px; background: var(--card); box-shadow: var(--shadow);
+    }
+    .side-card small { color: var(--muted); }
+    .progress { height: 8px; background: rgba(255,255,255,.09); border-radius: 999px; overflow: hidden; margin-top: 12px; }
+    .progress span { display: block; height: 100%; width: 72%; background: linear-gradient(90deg, var(--primary), var(--primary-2)); }
+    main { padding: 28px; overflow: hidden; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin-bottom: 24px; }
+    .title h2 { font-size: clamp(26px, 4vw, 42px); margin: 0; letter-spacing: -.05em; }
+    .title p { color: var(--muted); margin: 8px 0 0; }
+    .actions { display: flex; gap: 12px; align-items: center; }
+    .search { position: relative; }
+    .search input {
+      width: min(340px, 35vw); background: var(--card); color: var(--text); border: 1px solid var(--border);
+      border-radius: 16px; padding: 13px 15px 13px 42px; outline: 0;
+    }
+    .search span { position: absolute; left: 15px; top: 12px; color: var(--muted); }
+    .btn {
+      border: 0; border-radius: 16px; padding: 13px 17px; color: white; cursor: pointer;
+      background: linear-gradient(135deg, var(--primary), #5b8cff); box-shadow: 0 12px 28px rgba(124,92,255,.26);
+      transition: transform .2s ease, filter .2s ease;
+    }
+    .btn:hover { transform: translateY(-1px); filter: brightness(1.08); }
+    .btn.secondary { background: var(--card); box-shadow: none; border: 1px solid var(--border); }
+    .metrics { display: grid; grid-template-columns: repeat(5, minmax(150px, 1fr)); gap: 16px; margin-bottom: 22px; }
+    .metric {
+      padding: 20px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); backdrop-filter: blur(20px);
+      box-shadow: 0 16px 50px rgba(0,0,0,.18);
+    }
+    .metric p { margin: 0 0 10px; color: var(--muted); font-size: 13px; }
+    .metric strong { font-size: 28px; letter-spacing: -.04em; }
+    .metric small { display: block; margin-top: 8px; color: var(--success); }
+    .workspace { display: grid; grid-template-columns: 1fr 380px; gap: 18px; align-items: start; }
+    .panel { border: 1px solid var(--border); border-radius: var(--radius); background: rgba(255,255,255,.06); backdrop-filter: blur(24px); box-shadow: var(--shadow); overflow: hidden; }
+    .panel-head { padding: 18px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .panel-head h3 { margin: 0; font-size: 16px; letter-spacing: -.02em; }
+    .filters { display: flex; gap: 9px; flex-wrap: wrap; }
+    .chip { border: 1px solid var(--border); background: rgba(255,255,255,.06); color: var(--muted-2); border-radius: 999px; padding: 8px 11px; font-size: 12px; cursor: pointer; }
+    .chip.active { background: rgba(124,92,255,.22); color: white; border-color: rgba(124,92,255,.55); }
+    .kanban { display: grid; grid-template-columns: repeat(4, minmax(230px, 1fr)); gap: 14px; padding: 16px; overflow-x: auto; }
+    .column { min-height: 620px; background: rgba(0,0,0,.16); border: 1px solid rgba(255,255,255,.08); border-radius: 22px; padding: 12px; }
+    .column-title { display: flex; justify-content: space-between; align-items: center; padding: 7px 6px 13px; color: var(--muted-2); font-weight: 700; font-size: 13px; }
+    .count { background: rgba(255,255,255,.08); padding: 4px 8px; border-radius: 999px; color: var(--muted); }
+    .order-card { padding: 15px; border-radius: 20px; background: linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.055)); border: 1px solid rgba(255,255,255,.1); margin-bottom: 12px; cursor: pointer; transition: .2s ease; }
+    .order-card:hover { transform: translateY(-2px); border-color: rgba(124,92,255,.45); }
+    .order-card.selected { border-color: rgba(0,212,255,.75); box-shadow: 0 0 0 4px rgba(0,212,255,.08); }
+    .order-top { display: flex; justify-content: space-between; align-items: start; gap: 8px; }
+    .order-card h4 { margin: 0; font-size: 14px; letter-spacing: -.02em; line-height: 1.35; }
+    .tag { font-size: 11px; border-radius: 999px; padding: 5px 8px; border: 1px solid var(--border); color: var(--muted-2); white-space: nowrap; }
+    .tag.high { color: #ffd1d8; background: rgba(255,95,116,.14); border-color: rgba(255,95,116,.28); }
+    .tag.medium { color: #ffe7a8; background: rgba(255,200,87,.14); border-color: rgba(255,200,87,.28); }
+    .tag.low { color: #bdf6e2; background: rgba(53,211,157,.12); border-color: rgba(53,211,157,.25); }
+    .meta { display: grid; gap: 7px; margin-top: 14px; color: var(--muted); font-size: 12px; }
+    .avatar-row { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
+    .avatar { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, #fff2, #fff1); border: 1px solid var(--border); display: grid; place-items: center; color: white; font-weight: 800; font-size: 11px; }
+    .price { color: white; font-weight: 700; font-size: 13px; }
+    .detail { padding: 20px; }
+    .detail h3 { margin: 0 0 8px; font-size: 23px; letter-spacing: -.04em; }
+    .detail .client { color: var(--muted); margin-bottom: 18px; }
+    .status-line { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 18px 0; }
+    .step { height: 6px; border-radius: 999px; background: rgba(255,255,255,.12); }
+    .step.done { background: linear-gradient(90deg, var(--primary), var(--primary-2)); }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 18px 0; }
+    .info-box { padding: 14px; border-radius: 18px; background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.08); }
+    .info-box span { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    .info-box b { font-size: 14px; }
+    .timeline { display: grid; gap: 12px; margin-top: 18px; }
+    .event { display: grid; grid-template-columns: 28px 1fr; gap: 10px; }
+    .dot { width: 10px; height: 10px; margin: 6px auto 0; border-radius: 50%; background: var(--primary-2); box-shadow: 0 0 0 5px rgba(0,212,255,.12); }
+    .event p { margin: 0; color: var(--muted-2); font-size: 13px; line-height: 1.45; }
+    .event small { color: var(--muted); }
+    .modal { position: fixed; inset: 0; display: none; place-items: center; padding: 18px; background: rgba(0,0,0,.62); backdrop-filter: blur(12px); z-index: 20; }
+    .modal.open { display: grid; }
+    .modal-card { width: min(620px, 100%); border: 1px solid var(--border); border-radius: 28px; background: #0d1322; box-shadow: var(--shadow); padding: 22px; }
+    .modal-card h3 { margin: 0 0 16px; font-size: 24px; }
+    .form { display: grid; gap: 12px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field label { display: block; color: var(--muted); font-size: 12px; margin: 0 0 7px; }
+    .field input, .field select, .field textarea { width: 100%; background: rgba(255,255,255,.07); color: white; border: 1px solid var(--border); border-radius: 15px; padding: 12px; outline: 0; }
+    .field textarea { min-height: 92px; resize: vertical; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+    .mobile-toggle { display: none; }
+    @media (max-width: 1180px) { .workspace { grid-template-columns: 1fr; } .metrics { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 820px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      main { padding: 18px; }
+      .topbar { align-items: stretch; flex-direction: column; }
+      .actions { flex-wrap: wrap; }
+      .search input { width: 100%; }
+      .metrics { grid-template-columns: 1fr; }
+      .kanban { grid-template-columns: repeat(4, 260px); }
+      .form-row, .detail-grid { grid-template-columns: 1fr; }
+      .mobile-toggle { display: inline-flex; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">N</div>
+        <div><h1>Nexara OrderFlow</h1><p>Admin Order Digital</p></div>
+      </div>
+      <nav class="nav">
+        <button class="active"><span class="icon">⌘</span> Dashboard</button>
+        <button><span class="icon">▦</span> Orders</button>
+        <button><span class="icon">◌</span> Clients</button>
+        <button><span class="icon">◇</span> Team</button>
+        <button><span class="icon">↻</span> Revisions</button>
+        <button><span class="icon">▣</span> Files</button>
+        <button><span class="icon">₿</span> Invoices</button>
+        <button><span class="icon">◈</span> Analytics</button>
+        <button><span class="icon">⚙</span> Settings</button>
+      </nav>
+      <div class="side-card">
+        <small>Target penyelesaian bulan ini</small>
+        <div class="progress"><span></span></div>
+        <p style="margin:12px 0 0;font-weight:700;">72% workload selesai</p>
+      </div>
+    </aside>
+
+    <main>
+      <section class="topbar">
+        <div class="title">
+          <h2>Order Command Center</h2>
+          <p>Kelola pesanan digital, revisi, tim, deadline, dan invoice dalam satu dashboard.</p>
+        </div>
+        <div class="actions">
+          <div class="search"><span>⌕</span><input id="searchInput" placeholder="Cari order, klien, layanan..." /></div>
+          <button class="btn secondary" onclick="toggleTheme()">Mode</button>
+          <button class="btn" onclick="openModal()">+ New Order</button>
+        </div>
+      </section>
+
+      <section class="metrics" id="metrics"></section>
+
+      <section class="workspace">
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Live Order Board</h3>
+            <div class="filters">
+              <button class="chip active" data-filter="All">All</button>
+              <button class="chip" data-filter="High">High Priority</button>
+              <button class="chip" data-filter="Due Soon">Due Soon</button>
+              <button class="chip" data-filter="Paid">Paid</button>
+            </div>
+          </div>
+          <div class="kanban" id="kanban"></div>
+        </div>
+
+        <div class="panel" id="detailPanel"></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="modal-card">
+      <h3>Tambah Order Baru</h3>
+      <div class="form">
+        <div class="form-row">
+          <div class="field"><label>Nama Klien</label><input id="client" placeholder="Contoh: CV Bangka Kreatif" /></div>
+          <div class="field"><label>Jenis Layanan</label><select id="service"><option>Website</option><option>Design Branding</option><option>Social Media</option><option>Video Editing</option><option>Landing Page</option></select></div>
+        </div>
+        <div class="field"><label>Judul Order</label><input id="title" placeholder="Contoh: Landing Page Produk UMKM" /></div>
+        <div class="field"><label>Brief Singkat</label><textarea id="brief" placeholder="Tuliskan kebutuhan utama pelanggan..."></textarea></div>
+        <div class="form-row">
+          <div class="field"><label>Prioritas</label><select id="priority"><option>High</option><option>Medium</option><option>Low</option></select></div>
+          <div class="field"><label>Deadline</label><input id="deadline" type="date" /></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>PIC</label><input id="pic" placeholder="Contoh: Raka" /></div>
+          <div class="field"><label>Nilai Order</label><input id="price" placeholder="Contoh: Rp4.500.000" /></div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn secondary" onclick="closeModal()">Batal</button>
+        <button class="btn" onclick="addOrder()">Simpan Order</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const statuses = ['Masuk', 'Diproses', 'Revisi', 'Selesai'];
+    let activeFilter = 'All';
+    let selectedId = 1;
+    let orders = [
+      {id:1, title:'Website Company Profile Premium', client:'PT Lintas Ekspor Babel', service:'Website', status:'Masuk', priority:'High', deadline:'2026-05-21', pic:'Dina', price:'Rp8.500.000', paid:false, brief:'Website elegan untuk profil perusahaan, katalog layanan, form kontak, dan halaman legal.', events:['Order diterima dari WhatsApp Business','Brief awal sudah dicatat','Menunggu konfirmasi DP']},
+      {id:2, title:'Paket Konten Instagram 30 Hari', client:'Bangka Coffee Lab', service:'Social Media', status:'Diproses', priority:'Medium', deadline:'2026-05-24', pic:'Raka', price:'Rp3.200.000', paid:true, brief:'Konten feed, reels script, dan caption edukatif untuk produk kopi lokal.', events:['Order dikonfirmasi','PIC konten sudah ditentukan','Produksi batch pertama berjalan']},
+      {id:3, title:'Video Launching Produk UMKM', client:'Kurau Fish Snack', service:'Video Editing', status:'Revisi', priority:'High', deadline:'2026-05-19', pic:'Aldi', price:'Rp2.750.000', paid:true, brief:'Video vertikal 45 detik untuk launching produk olahan ikan.', events:['Draft pertama dikirim','Klien meminta revisi opening','Editor sedang revisi warna dan subtitle']},
+      {id:4, title:'Brand Identity Export Kit', client:'Nusantara Pepper', service:'Design Branding', status:'Selesai', priority:'Low', deadline:'2026-05-16', pic:'Maya', price:'Rp6.000.000', paid:true, brief:'Logo refinement, color system, packaging label, dan export catalog.', events:['Final file dikirim','Klien approval','Invoice lunas dan order ditutup']},
+      {id:5, title:'Landing Page Training Ekspor', client:'Global UMKM Academy', service:'Landing Page', status:'Diproses', priority:'High', deadline:'2026-05-20', pic:'Nico', price:'Rp4.800.000', paid:false, brief:'Landing page event training dengan form registrasi dan countdown.', events:['Wireframe selesai','Copywriting disetujui','Development halaman utama']},
+      {id:6, title:'Template Proposal Investor', client:'Nexara Creative', service:'Design Branding', status:'Masuk', priority:'Medium', deadline:'2026-05-28', pic:'Sinta', price:'Rp1.900.000', paid:false, brief:'Template proposal deck 12 halaman untuk presentasi calon investor.', events:['Order internal dibuat','Menunggu asset brand']}
+    ];
+
+    function priorityClass(p){ return p.toLowerCase(); }
+    function isDueSoon(date){ return new Date(date) - new Date('2026-05-17') <= 4*86400000; }
+    function filteredOrders(){
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      return orders.filter(o => {
+        const matchSearch = [o.title,o.client,o.service,o.status,o.pic].join(' ').toLowerCase().includes(q);
+        const matchFilter = activeFilter === 'All' ||
+          (activeFilter === 'High' && o.priority === 'High') ||
+          (activeFilter === 'Due Soon' && isDueSoon(o.deadline)) ||
+          (activeFilter === 'Paid' && o.paid);
+        return matchSearch && matchFilter;
+      });
+    }
+    function renderMetrics(){
+      const active = orders.filter(o=>o.status!=='Selesai').length;
+      const revision = orders.filter(o=>o.status==='Revisi').length;
+      const done = orders.filter(o=>o.status==='Selesai').length;
+      const paid = orders.filter(o=>o.paid).length;
+      const data = [
+        ['Total Order', orders.length, '+12% bulan ini'],
+        ['Order Aktif', active, 'Butuh monitoring'],
+        ['Dalam Revisi', revision, 'Prioritas follow up'],
+        ['Order Selesai', done, 'Siap arsip'],
+        ['Paid Orders', paid, 'Pembayaran tercatat']
+      ];
+      document.getElementById('metrics').innerHTML = data.map(m=>`<div class="metric"><p>${m[0]}</p><strong>${m[1]}</strong><small>${m[2]}</small></div>`).join('');
+    }
+    function renderKanban(){
+      const data = filteredOrders();
+      document.getElementById('kanban').innerHTML = statuses.map(status => {
+        const list = data.filter(o=>o.status===status);
+        return `<div class="column"><div class="column-title"><span>${status}</span><span class="count">${list.length}</span></div>${list.map(o=>card(o)).join('') || emptyState(status)}</div>`;
+      }).join('');
+    }
+    function emptyState(status){ return `<div style="padding:18px;text-align:center;color:var(--muted);font-size:13px;border:1px dashed var(--border);border-radius:18px;">Belum ada order ${status.toLowerCase()}.</div>`; }
+    function card(o){
+      return `<div class="order-card ${o.id===selectedId?'selected':''}" onclick="selectOrder(${o.id})">
+        <div class="order-top"><h4>${o.title}</h4><span class="tag ${priorityClass(o.priority)}">${o.priority}</span></div>
+        <div class="meta"><span>${o.client}</span><span>${o.service} • Deadline ${formatDate(o.deadline)}</span></div>
+        <div class="avatar-row"><div class="avatar">${o.pic.slice(0,2).toUpperCase()}</div><span class="price">${o.price}</span></div>
+      </div>`;
+    }
+    function renderDetail(){
+      const o = orders.find(x=>x.id===selectedId) || orders[0];
+      const progress = statuses.indexOf(o.status)+1;
+      document.getElementById('detailPanel').innerHTML = `<div class="panel-head"><h3>Order Detail</h3><span class="tag ${priorityClass(o.priority)}">${o.priority}</span></div>
+      <div class="detail">
+        <h3>${o.title}</h3><div class="client">${o.client} • ${o.service}</div>
+        <div class="status-line">${[1,2,3,4].map(i=>`<span class="step ${i<=progress?'done':''}"></span>`).join('')}</div>
+        <div class="detail-grid">
+          <div class="info-box"><span>Status</span><b>${o.status}</b></div>
+          <div class="info-box"><span>Deadline</span><b>${formatDate(o.deadline)}</b></div>
+          <div class="info-box"><span>PIC</span><b>${o.pic}</b></div>
+          <div class="info-box"><span>Payment</span><b>${o.paid ? 'Paid' : 'Unpaid'}</b></div>
+        </div>
+        <div class="info-box"><span>Brief</span><b>${o.brief}</b></div>
+        <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+          <button class="btn secondary" onclick="moveStatus(-1)">← Status</button>
+          <button class="btn" onclick="moveStatus(1)">Next Status →</button>
+        </div>
+        <div class="timeline">${o.events.map(e=>`<div class="event"><div class="dot"></div><div><p>${e}</p><small>Activity log</small></div></div>`).join('')}</div>
+      </div>`;
+    }
+    function renderAll(){ renderMetrics(); renderKanban(); renderDetail(); }
+    function selectOrder(id){ selectedId = id; renderAll(); }
+    function moveStatus(dir){
+      const o = orders.find(x=>x.id===selectedId); const idx = statuses.indexOf(o.status); const next = Math.max(0, Math.min(statuses.length-1, idx+dir));
+      o.status = statuses[next]; o.events.unshift(`Status diperbarui menjadi ${o.status}`); renderAll();
+    }
+    function openModal(){ document.getElementById('modal').classList.add('open'); }
+    function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+    function addOrder(){
+      const order = {
+        id: Date.now(), title: val('title') || 'Order Baru', client: val('client') || 'Klien Baru', service: val('service'), status:'Masuk', priority: val('priority'), deadline: val('deadline') || '2026-05-30', pic: val('pic') || 'Admin', price: val('price') || 'Rp0', paid:false, brief: val('brief') || 'Brief belum diisi.', events:['Order baru dibuat melalui dashboard']
+      };
+      orders.unshift(order); selectedId = order.id; closeModal(); renderAll();
+    }
+    function val(id){ return document.getElementById(id).value; }
+    function formatDate(date){ return new Intl.DateTimeFormat('id-ID', {day:'2-digit', month:'short', year:'numeric'}).format(new Date(date)); }
+    function toggleTheme(){ document.body.classList.toggle('light'); alert('Demo mode: dark theme premium aktif. Versi produksi dapat dibuat dengan light/dark token lengkap.'); }
+    document.getElementById('searchInput').addEventListener('input', renderAll);
+    document.querySelectorAll('.chip').forEach(btn=>btn.addEventListener('click', e=>{ document.querySelectorAll('.chip').forEach(b=>b.classList.remove('active')); e.target.classList.add('active'); activeFilter = e.target.dataset.filter; renderAll(); }));
+    renderAll();
+  </script>
+</body>
+</html>
