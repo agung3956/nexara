@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900">
+  <g transform="translate(900 900) rotate(180)">
+  <rect width="900" height="900" fill="#0f172a"/>
+  <text x="80" y="110" fill="#fff" font-family="Arial" font-size="42" font-weight="700">Dashboard Admin Order</text>
+  <rect x="70" y="170" width="170" height="610" rx="20" fill="#fff7ed"/>
+  <rect x="265" y="170" width="170" height="610" rx="20" fill="#eff6ff"/>
+  <rect x="460" y="170" width="170" height="610" rx="20" fill="#fefce8"/>
+  <rect x="655" y="170" width="170" height="610" rx="20" fill="#ecfdf5"/>
+  <text x="105" y="220" fill="#9a3412" font-family="Arial" font-size="24" font-weight="700">Masuk</text>
+  <text x="292" y="220" fill="#1d4ed8" font-family="Arial" font-size="24" font-weight="700">Diproses</text>
+  <text x="502" y="220" fill="#a16207" font-family="Arial" font-size="24" font-weight="700">Revisi</text>
+  <text x="692" y="220" fill="#047857" font-family="Arial" font-size="24" font-weight="700">Selesai</text>
+  <rect x="92" y="270" width="126" height="120" rx="14" fill="#fff"/>
+  <rect x="287" y="285" width="126" height="160" rx="14" fill="#fff"/>
+  <rect x="482" y="260" width="126" height="145" rx="14" fill="#fff"/>
+  <rect x="677" y="290" width="126" height="130" rx="14" fill="#fff"/>
+  <rect x="92" y="430" width="126" height="150" rx="14" fill="#fff"/>
+  <rect x="287" y="500" width="126" height="130" rx="14" fill="#fff"/>
+  <rect x="482" y="460" width="126" height="120" rx="14" fill="#fff"/>
+  <rect x="677" y="475" width="126" height="150" rx="14" fill="#fff"/>
+  <rect x="112" y="305" width="86" height="14" rx="7" fill="#f97316"/>
+  <rect x="307" y="320" width="86" height="14" rx="7" fill="#f97316"/>
+  <rect x="502" y="295" width="86" height="14" rx="7" fill="#f97316"/>
+  <rect x="697" y="325" width="86" height="14" rx="7" fill="#f97316"/>
+  </g>
+</svg>

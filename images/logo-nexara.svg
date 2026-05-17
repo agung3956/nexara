@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 150" role="img" aria-labelledby="title desc">
+  <title id="title">Nexara Creative Logo</title>
+  <desc id="desc">Logo Nexara Creative dengan simbol N oranye dan teks hitam.</desc>
+  <rect width="560" height="150" fill="transparent"/>
+  <g transform="translate(18 18)">
+    <rect x="0" y="0" width="114" height="114" rx="24" fill="#0A0A0A"/>
+    <path d="M28 85V29h17l31 39V29h17v56H77L45 46v39H28Z" fill="#F97316"/>
+    <path d="M25 95h67" stroke="#F97316" stroke-width="7" stroke-linecap="round"/>
+  </g>
+  <g fill="#0A0A0A" font-family="Outfit, Arial, sans-serif">
+    <text x="156" y="72" font-size="54" font-weight="700" letter-spacing="0">Nexara</text>
+    <text x="159" y="108" font-size="25" font-weight="500" fill="#F97316" letter-spacing="4">CREATIVE</text>
+  </g>
+</svg>
